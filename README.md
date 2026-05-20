@@ -1,6 +1,6 @@
 # alexandro-bolfa.com
 
-Personal portfolio. Built with Next.js 15, Tailwind v4, shadcn/ui.
+Personal portfolio. Built with Next.js 16, Tailwind v4, shadcn/ui.
 
 ## Develop
 
