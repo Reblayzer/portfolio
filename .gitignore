@@ -1,0 +1,39 @@
+# deps
+node_modules/
+.pnp.*
+.yarn/
+
+# build
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs / OS
+*.log
+.DS_Store
+Thumbs.db
+
+# editor
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# brainstorm artifacts (visual companion)
+.superpowers/
+
+# Claude Code harness
+.claude/
+
+# vercel
+.vercel/
+
+# test coverage
+coverage/
