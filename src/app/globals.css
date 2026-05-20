@@ -26,10 +26,15 @@
     --color-muted-foreground: #a1a1aa;
     --color-border: rgb(255 255 255 / 0.08);
     --color-accent: #3b82f6;
-    --color-accent-foreground: #0a0a0a;
+    --color-accent-foreground: #0a0a0a; /* dark text on lighter blue-500 */
   }
 
-  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem; /* 4rem nav + 1rem clearance */
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -52,7 +57,4 @@
       scroll-behavior: auto !important;
     }
   }
-
-  /* Smooth scrolling for in-page anchor nav */
-  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 }
