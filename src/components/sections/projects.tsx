@@ -13,7 +13,7 @@ export async function Projects() {
         Selected work
       </p>
       <h2 className="font-mono text-2xl font-medium tracking-tight md:text-3xl">
-        Things I've built.
+        Things I&apos;ve built.
       </h2>
 
       <div className="mt-10 space-y-6">

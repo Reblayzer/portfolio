@@ -12,7 +12,7 @@ export function Experience() {
         Experience
       </p>
       <h2 className="font-mono text-2xl font-medium tracking-tight md:text-3xl">
-        Where I've worked.
+        Where I&apos;ve worked.
       </h2>
       <ol className="mt-10 space-y-10 border-l border-border pl-6">
         {experience.map((e, idx) => (

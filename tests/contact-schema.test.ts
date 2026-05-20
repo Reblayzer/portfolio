@@ -34,7 +34,7 @@ describe("contactSchema", () => {
   });
 
   it("treats undefined honeypot as empty", () => {
-    const { website: _website, ...withoutHoneypot } = valid;
+    const withoutHoneypot = { name: valid.name, email: valid.email, message: valid.message };
     const result = contactSchema.safeParse(withoutHoneypot);
     expect(result.success).toBe(true);
   });

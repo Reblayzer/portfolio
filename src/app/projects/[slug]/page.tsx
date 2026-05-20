@@ -35,6 +35,19 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: project.title,
+            description: project.summary,
+            datePublished: `${project.year}-01-01`,
+            author: { "@type": "Person", name: "Alexandro Bolfa" },
+          }),
+        }}
+      />
       <Nav />
       <main className="mx-auto max-w-3xl px-6 py-16">
         <Link

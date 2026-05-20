@@ -8,6 +8,9 @@ export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // Canonical next-themes hydration guard: defer theme-dependent UI until after
+  // first client paint to avoid hydration mismatch.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
