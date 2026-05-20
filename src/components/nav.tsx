@@ -1,0 +1,51 @@
+import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { site } from "@content/site";
+
+const links = [
+  { href: "#about", label: "About" },
+  { href: "#skills", label: "Skills" },
+  { href: "#experience", label: "Experience" },
+  { href: "#work", label: "Work" },
+  { href: "#contact", label: "Contact" },
+];
+
+export function Nav() {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
+      <nav
+        aria-label="Primary"
+        className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6"
+      >
+        <Link
+          href="/"
+          className="font-mono text-base font-bold tracking-tight text-accent"
+          aria-label={`${site.name} — home`}
+        >
+          {site.initials}
+        </Link>
+        <ul className="hidden items-center gap-8 text-sm md:flex">
+          {links.map((l) => (
+            <li key={l.href}>
+              <Link
+                href={l.href}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center gap-2">
+          <a
+            href={site.resumeHref}
+            className="inline-flex h-9 items-center rounded-full bg-accent px-4 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
+          >
+            Resume
+          </a>
+          <ThemeToggle />
+        </div>
+      </nav>
+    </header>
+  );
+}
