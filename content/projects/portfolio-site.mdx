@@ -1,0 +1,33 @@
+---
+title: "Portfolio Site"
+slug: "portfolio-site"
+summary: "Design, build, and ship my own portfolio on Vercel."
+stack: ["Next.js 15", "TypeScript", "Tailwind v4", "shadcn/ui"]
+role: "Designer & Engineer"
+year: 2026
+links:
+  live: "https://alexandro-bolfa.com"
+  repo: "https://github.com/alexandro-bolfa/portfolio"
+cover: "/projects/portfolio/cover.png"
+flagship: true
+---
+
+## The problem
+
+I needed a portfolio that looked like 2026, not 2018. Recruiters spend 30 seconds on a portfolio at most, and an engineering manager who clicks through wants to know how I think, not just what I've built. Most templates do one or the other.
+
+## Approach
+
+I designed the site as a single-page hub for the 30-second scan, with dedicated case-study pages for the engineers who want depth. The aesthetic is intentionally restrained — mono base, electric blue accent, Geist Mono for display type. The signal is taste, not novelty.
+
+## Architecture
+
+- **Next.js 15 App Router** — React Server Components by default; client components only where they earn it (theme toggle, contact form, scroll-fade wrapper).
+- **Tailwind v4** with `@theme` design tokens defined in CSS rather than `tailwind.config.ts`.
+- **Content is git** — flagship case studies are MDX files in `content/projects/`; non-flagships, skills, and experience are typed TypeScript files.
+- **Contact form** posts to a Route Handler that validates with the same Zod schema used on the client, rate-limits via Upstash Redis, and delivers via Resend.
+- **Performance budget:** Lighthouse ≥ 95 across the board. Self-hosted Geist via `next/font`, all images via `next/image`, zero client-side data fetching on the home page.
+
+## What I'd do differently
+
+This section will grow as the site does — capture decisions I revisited later here.
