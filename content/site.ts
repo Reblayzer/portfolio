@@ -12,7 +12,7 @@ export const site = {
   email: "hello@alexandro-bolfa.com",
   resumeHref: "/resume.pdf",
   socials: [
-    { label: "GitHub", href: "https://github.com/alexandro-bolfa" },
+    { label: "GitHub", href: "https://github.com/Reblayzer" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alexandro-bolfa/" },
     { label: "X", href: "https://x.com/alexandro_bolfa" },
   ] satisfies SocialLink[],

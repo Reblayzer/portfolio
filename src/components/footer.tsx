@@ -1,6 +1,6 @@
 import { site } from "@content/site";
 
-const sourceRepo = "https://github.com/alexandro-bolfa/portfolio";
+const sourceRepo = "https://github.com/Reblayzer/portfolio";
 
 export function Footer() {
   return (
