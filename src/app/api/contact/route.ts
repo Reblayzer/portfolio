@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = contactSchema.safeParse(payload);
   if (!parsed.success) {
-    // Honeypot or validation — don't leak which.
+    // Honeypot or validation: don't leak which.
     return NextResponse.json({ error: "Invalid submission." }, { status: 400 });
   }
 

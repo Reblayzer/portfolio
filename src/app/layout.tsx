@@ -8,7 +8,7 @@ import { buildMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  ...buildMetadata({ description: "Software engineer — frontend-focused, full-stack capable." }),
+  ...buildMetadata({ description: "Software engineer. Frontend-focused, full-stack capable." }),
   title: { default: "Alexandro Bolfa", template: "%s · Alexandro Bolfa" },
 };
 

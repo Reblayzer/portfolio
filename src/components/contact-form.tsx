@@ -40,7 +40,7 @@ export function ContactForm() {
         return;
       }
       setStatus("success");
-      setServerMessage("Thanks — your message is on its way.");
+      setServerMessage("Thanks, your message is on its way.");
       reset();
     } catch {
       setStatus("error");
@@ -50,7 +50,7 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="mt-8 grid gap-4" aria-describedby="contact-status">
-      {/* Honeypot — visually hidden from humans, ignored by them */}
+      {/* Honeypot: visually hidden from humans, ignored by them */}
       <div aria-hidden className="absolute -left-[10000px] h-0 w-0 overflow-hidden">
         <label htmlFor="website">Website</label>
         <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />

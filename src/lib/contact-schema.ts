@@ -8,7 +8,7 @@ export const contactSchema = z.object({
     .trim()
     .min(10, "Message should be at least 10 characters.")
     .max(5000, "Message is too long."),
-  // Honeypot — humans see/fill nothing; bots autofill anything.
+  // Honeypot: humans see/fill nothing; bots autofill anything.
   website: z.string().max(0, "Spam detected.").optional(),
 });
 

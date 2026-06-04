@@ -23,10 +23,10 @@ export async function checkRateLimit(identifier: string): Promise<{ ok: boolean;
   if (!l) {
     // In dev (no Upstash creds) we fail open with a warning.
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[rate-limit] Upstash env vars missing — skipping rate limit (dev only).");
+      console.warn("[rate-limit] Upstash env vars missing, skipping rate limit (dev only).");
       return { ok: true, remaining: Infinity };
     }
-    // In production this is a configuration error — fail closed.
+    // In production this is a configuration error, fail closed.
     return { ok: false, remaining: 0 };
   }
   const result = await l.limit(identifier);

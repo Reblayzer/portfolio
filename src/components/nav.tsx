@@ -20,7 +20,7 @@ export function Nav() {
         <Link
           href="/"
           className="font-mono text-base font-bold tracking-tight text-accent"
-          aria-label={`${site.name} — home`}
+          aria-label={`${site.name}, home`}
         >
           {site.initials}
         </Link>

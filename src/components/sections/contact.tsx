@@ -16,7 +16,7 @@ export function Contact() {
         <a className="text-accent underline-offset-4 hover:underline" href={`mailto:${site.email}`}>
           {site.email}
         </a>{" "}
-        — or use the form below.
+        or use the form below.
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
