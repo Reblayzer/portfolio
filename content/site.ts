@@ -9,11 +9,10 @@ export const site = {
     "Right now I'm looking for a first full-time role on a product team that ships often and treats the frontend as a craft.",
   ] as const,
   location: "Romania",
-  email: "hello@alexandro-bolfa.com",
+  email: "contact@alexandro-bolfa.com",
   resumeHref: "/resume.pdf",
   socials: [
     { label: "GitHub", href: "https://github.com/Reblayzer" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alexandro-bolfa/" },
-    { label: "X", href: "https://x.com/alexandro_bolfa" },
   ] satisfies SocialLink[],
 } as const;
