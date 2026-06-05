@@ -8,9 +8,17 @@ export type ProjectCard = {
 
 export const projectCards: ProjectCard[] = [
   {
-    title: "Example Project",
-    summary: "Replace with a real one-liner about what this project does.",
-    stack: ["Next.js", "TypeScript"],
-    links: { repo: "https://github.com/alexandro-bolfa/example", live: "https://example.com" },
+    title: "NutriMind",
+    summary:
+      "An AI nutrition planning engine that reasons about nutrient interactions, bioavailability, and supplement timing, not just macros.",
+    stack: ["Next.js 16", "Claude Agent SDK", "TypeScript", "SQLite"],
+    links: {},
+  },
+  {
+    title: "Real-Time CDC Pipeline",
+    summary:
+      "A production-shaped change-data-capture pipeline with a live storefront: place an order and watch it land in the analytics warehouse seconds later.",
+    stack: ["FastAPI", "Debezium / Kafka", "PySpark", "ClickHouse"],
+    links: { repo: "https://github.com/Reblayzer/realtime-cdc-pipeline" },
   },
 ];
