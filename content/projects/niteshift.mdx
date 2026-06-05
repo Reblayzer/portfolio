@@ -1,0 +1,29 @@
+---
+title: "Niteshift"
+slug: "niteshift"
+summary: "An incremental blockchain game in Unity where players build a tiered resource economy across plots of land to win tradable NFT rewards."
+stack: ["Unity", "C#", "Solidity", "Claude Code"]
+role: "Frontend Lead (Unity / C#)"
+year: 2024
+cover: "/projects/niteshift/cover.jpg"
+flagship: true
+---
+
+## The problem
+
+Most blockchain games lead with the token and treat the game as an afterthought, so the moment-to-moment play feels thin. We wanted the opposite: a game that holds up as a game first, with the chain handling ownership and rewards quietly in the background. I joined two friends to build Niteshift, and I took the entire Unity client.
+
+## Approach
+
+The loop is an incremental economy. Players spawn on a plot, place a mining drill that produces three tier-1 resources, then chain assemblers to combine tier-1 into tier-2 and tier-2 into tier-3. A scavenger station sends units out to abandoned plots to recover more raw material. Tier-3 buys new plots, and owning the most plots wins an NFT that trades on an in-game marketplace. Every building has to connect back to the warehouse by road, which is where the interesting frontend work lives.
+
+## Architecture
+
+- **Entire Unity / C# client:** core gameplay UI, HUD, menus, the asset and material pipeline, and every in-game interaction.
+- **Auto-connecting tile system:** the piece I'm most proud of. When a player places or removes a building or a street, the system inspects neighbouring tiles, decides the correct visual variant for each road tile (straight, curve, T-junction, intersection), and re-renders the affected area in real time. It is a small state machine over the grid, kept fast enough to feel instant.
+- **On-chain layer:** a teammate owns the Solidity smart contracts on the Hydragon chain and the NFT marketplace integration; I consume those through the client.
+- **AI-native workflow:** Claude Code is my daily driver on this project, backed by custom skills (prompt libraries for recurring frontend patterns) and MCP server integrations for automation. It is the strongest concrete example of how I actually build now.
+
+## What I'd do differently
+
+The tile-connection logic grew organically and would be cleaner as an explicit rule table rather than branching code. The game is at internal-builds stage as of 2026 and the repo is private during development, so there's no public link yet. When it opens up, this page gets the live build.
