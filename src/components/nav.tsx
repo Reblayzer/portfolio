@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@content/site";
 
@@ -19,10 +20,18 @@ export function Nav() {
       >
         <Link
           href="/"
-          className="font-mono text-base font-bold tracking-tight text-accent"
+          className="inline-flex items-center"
           aria-label={`${site.name}, home`}
         >
-          {site.initials}
+          <Image
+            src="/ab-logo.svg"
+            alt={site.name}
+            width={36}
+            height={36}
+            priority
+            unoptimized
+            className="h-9 w-9"
+          />
         </Link>
         <ul className="hidden items-center gap-8 text-sm md:flex">
           {links.map((l) => (
