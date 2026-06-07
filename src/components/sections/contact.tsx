@@ -29,12 +29,6 @@ export function Contact() {
             {s.label}
           </a>
         ))}
-        <a
-          href={site.resumeHref}
-          className="ml-auto inline-flex h-9 items-center rounded-full bg-accent px-4 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
-        >
-          Download résumé
-        </a>
       </div>
 
       <ContactForm />

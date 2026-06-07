@@ -46,12 +46,6 @@ export function Nav() {
           ))}
         </ul>
         <div className="flex items-center gap-2">
-          <a
-            href={site.resumeHref}
-            className="inline-flex h-9 items-center rounded-full bg-accent px-4 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
-          >
-            Resume
-          </a>
           <ThemeToggle />
         </div>
       </nav>

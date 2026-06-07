@@ -10,7 +10,6 @@ export const site = {
   ] as const,
   location: "Horsens, Denmark",
   email: "contact@alexandro-bolfa.com",
-  resumeHref: "/resume.pdf",
   socials: [
     { label: "GitHub", href: "https://github.com/Reblayzer" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/alexandro-bolfa/" },
