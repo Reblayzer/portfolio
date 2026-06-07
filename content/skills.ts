@@ -5,19 +5,32 @@ export type SkillGroup = {
 
 export const skillGroups: SkillGroup[] = [
   {
+    title: "Languages",
+    items: ["Python", "TypeScript", "JavaScript", "Java", "C#", "Go", "SQL"],
+  },
+  {
     title: "Frontend",
-    items: ["TypeScript", "React", "Next.js", "Angular", "Vue", "HTML & CSS"],
+    items: ["React", "Next.js", "Angular", "Tailwind CSS", "HTML & CSS"],
   },
   {
-    title: "Backend",
-    items: ["C# / .NET", "Java / Spring Boot", "Node.js", "REST", "gRPC", "Kafka Streams"],
+    title: "Backend & Data",
+    items: [".NET / ASP.NET Core", "Spring Boot", "FastAPI", "Node.js", "REST", "PostgreSQL", "Elasticsearch", "Kafka"],
   },
   {
-    title: "Data & DevOps",
-    items: ["PostgreSQL", "SQL & NoSQL", "Docker", "Kubernetes", "Azure", "CI/CD"],
+    title: "Cloud & DevOps",
+    items: ["Azure", "Docker", "Kubernetes", "Terraform", "GitHub Actions", "CI/CD", "Linux"],
   },
   {
-    title: "AI & Tools",
-    items: ["Claude Code", "MCP", "GitHub Copilot", "Git", "Unit testing", "Scrum"],
+    title: "AI & Practices",
+    items: [
+      "Claude Code",
+      "GitHub Copilot",
+      "MCP",
+      "Microservices",
+      "Clean Architecture",
+      "Unit testing",
+      "Scrum",
+      "Git",
+    ],
   },
 ];
