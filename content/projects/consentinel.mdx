@@ -1,0 +1,35 @@
+---
+title: "Consentinel"
+slug: "consentinel"
+summary: "A data-governance & compliance portal: register datasets, automatically classify the personal data inside them, and run right-to-be-forgotten requests through an auditable approval workflow."
+stack: ["Python", "FastAPI", "TypeScript", "Next.js", "Terraform", "PostgreSQL"]
+role: "Full-stack engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/consentinel" }
+cover: "/projects/consentinel/cover.png"
+flagship: true
+---
+
+## The problem
+
+Handling personal data compliantly is mostly manual work. Someone has to know which tables hold personal data, remember the lawful basis for using it, and chase down every copy when a person asks to be forgotten. I wanted to see how much of that could become software: clean APIs and a simple interface that make the compliant path the easy path. Consentinel is the result: a data-governance portal I built solo, end to end.
+
+## Approach
+
+The system is organised around the real workflow of a data-platform compliance team. A data owner registers a dataset *manifest*; the API automatically classifies every column for personal data; the owner attaches a lawful basis (GDPR Article 6) and a retention period; and a data subject can file a right-to-be-forgotten or access request that moves through a stewarded approval workflow (`pending → approved → completed`), with every action recorded in an append-only audit trail.
+
+## Architecture
+
+- **Compliance API (Python / FastAPI / SQLAlchemy):** the manifests, usage agreements, governance requests, and audit endpoints. It runs on SQLite for zero-setup local development and PostgreSQL for the containerised stack: the same code, swapped by one environment variable.
+- **Automatic PII classification:** a dependency-free classifier that combines value patterns (regex, Luhn checks for card numbers) with multilingual column-name hints (English and Danish, including the Danish CPR national-ID format), and returns a category, a confidence score, and a human-readable rationale for every decision.
+- **Governance & secure access:** role-based access control (owner / steward / subject / admin), the right-to-be-forgotten workflow with guarded state transitions (invalid transitions return a clean `409`), and an immutable audit log.
+- **Infrastructure as code:** the whole stack comes up from `docker-compose` (PostgreSQL + LocalStack), with Terraform provisioning an S3 evidence bucket and an SQS request queue, and Alembic migrations applied automatically on boot.
+- **Dashboard (Next.js / TypeScript / Tailwind):** a typed API client proxied through Next rewrites (so there is no CORS to manage), with a role switcher that lets you experience the app from each governance role and watch the access rules enforce themselves.
+
+## How I built it
+
+I delivered it in SCRUM-style sprints, each one leaving the project in a working, tested state and landing as a single commit, so the git history reads like a delivery log. Every push runs a CI pipeline (`ruff` + `pytest` for the API, `vitest` + build for the UI, `terraform fmt`/`validate` for the infrastructure). The data-engineering core, the PII classifier, is deliberately pure and deterministic so it is trivial to unit-test and could run as a batch step over a whole catalogue.
+
+## What I'd do differently
+
+The header-based access control is a deliberate stand-in for real OIDC/JWT auth, isolated in a single module so a real identity provider can replace it without touching the rest of the app; that is the natural next step. The PII classifier is heuristic, which is a strong first pass, but messier real-world data would benefit from complementing it with statistical or ML-based detection.
