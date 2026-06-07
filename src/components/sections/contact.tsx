@@ -12,7 +12,7 @@ export function Contact() {
         Let&apos;s talk.
       </h2>
       <p className="mt-4 text-base text-muted-foreground">
-        Open to new-grad full-time roles. The fastest way to reach me is{" "}
+        Open to new software engineering roles. The fastest way to reach me is{" "}
         <a className="text-accent underline-offset-4 hover:underline" href={`mailto:${site.email}`}>
           {site.email}
         </a>{" "}
