@@ -40,3 +40,4 @@ coverage/
 
 # verification scratch (playwright screenshots + scripts)
 .verify-tmp/
+.vercel
