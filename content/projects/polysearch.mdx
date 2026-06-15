@@ -1,0 +1,35 @@
+---
+title: "polysearch"
+slug: "polysearch"
+summary: "One SearchEngine interface across Elasticsearch, OpenSearch and Solr: a unified query language, autocomplete and faceting that behave the same on every engine, and a compare mode that runs one query across all three and shows where their relevance disagrees."
+stack: ["TypeScript", "Node.js", "Elasticsearch", "OpenSearch", "Solr", "Next.js"]
+role: "Library author and engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/polysearch" }
+cover: "/projects/polysearch/cover.png"
+flagship: true
+---
+
+## The problem
+
+Most search code is written against one engine and quietly assumes that engine forever. Elasticsearch, OpenSearch and Solr all build on Lucene and BM25, yet each speaks a different query language and disagrees in subtle ways about ranking, so switching engines or comparing them honestly means rewriting queries and trusting your memory. I wanted a single, typed interface that hides those differences where they do not matter and surfaces them where they do. polysearch is the result: a TypeScript library, CLI and web UI I built solo.
+
+## Approach
+
+Everything hangs off one idea: every backend implements the same `SearchEngine` interface, and the rest of the code depends only on that interface. A caller builds one engine-neutral query, and a per-engine translator compiles it into that engine's native form. The translators are pure functions, so they are unit-tested without a running engine, and one place (`createEngine`) is where a concrete backend is chosen. The headline feature is a compare mode that runs the same query across all three engines and reports where they agree and where they rank documents differently, because relevance is a ranking, not a raw score you can compare across engines.
+
+## Architecture
+
+- **Unified Query DSL:** match, term, range and bool clauses plus sort, paging, highlighting, facets and a post filter, all engine-neutral and discriminated by type so an unhandled case fails to compile.
+- **Three adapters, two translators:** Elasticsearch and OpenSearch share a translator (OpenSearch forked Elasticsearch 7.10), emitting one neutral compiled shape that is assignable to both clients with no cast. Solr has its own translator that renders Lucene `q` and `fq` parameters. The Solr adapter talks to the HTTP API directly through native `fetch`, with zero third-party runtime dependencies.
+- **Autocomplete and faceting across engines:** prefix suggestions (`match_phrase_prefix` on Elasticsearch and OpenSearch, a wildcarded Lucene clause on Solr) and `terms` and `range` facets with post-filter semantics, so counts stay stable while a user drills into filters. Where the engines genuinely differ, the difference is documented at the call site rather than hidden.
+- **Safety and ergonomics:** typed errors, field-name validation that closes a Lucene injection vector, and configurable client and server timeouts.
+- **Tooling:** strict TypeScript on Node 22, a Vitest suite split into pure unit tests and integration tests gated behind a flag, and a CI pipeline that runs the unit checks plus real Elasticsearch and OpenSearch containers. A `docker-compose` brings all three engines up locally.
+
+## How I built it
+
+I shipped it as a sequence of small, versioned releases, each one leaving the project green and landing as a single commit, so the git history reads like a delivery log. A Next.js web UI sits on top: it seeds a sample catalogue into all three engines, runs the compare view, and demonstrates the autocomplete dropdown and facet sidebar live in the browser.
+
+## What I'd do differently
+
+The autocomplete uses prefix matching rather than each engine's native completion suggester, a deliberate choice so it works on existing indexes with no schema changes; a production build aiming for the lowest possible latency would add the native suggesters behind the same interface. Semantic (vector) search and synonyms are the natural next features, and the interface is designed to absorb them without changing the callers.
