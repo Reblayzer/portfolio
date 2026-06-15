@@ -8,13 +8,6 @@ export type ProjectCard = {
 
 export const projectCards: ProjectCard[] = [
   {
-    title: "NutriMind",
-    summary:
-      "An AI nutrition planning engine that reasons about nutrient interactions, bioavailability, and supplement timing, not just macros.",
-    stack: ["Next.js 16", "Claude Agent SDK", "TypeScript", "SQLite"],
-    links: {},
-  },
-  {
     title: "Real-Time CDC Pipeline",
     summary:
       "A production-shaped change-data-capture pipeline with a live storefront: place an order and watch it land in the analytics warehouse seconds later.",

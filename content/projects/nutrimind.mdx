@@ -1,0 +1,30 @@
+---
+title: "NutriMind"
+slug: "nutrimind"
+summary: "An AI nutrition planning agent that reasons about nutrient interactions, bioavailability and supplement timing, not just macros: built on the Claude Agent SDK and grounded in a curated knowledge base so every recommendation traces back to a rule, never a guess."
+stack: ["Next.js 16", "Claude Agent SDK", "TypeScript", "SQLite"]
+role: "Engineer (solo build)"
+year: 2026
+links: {}
+cover: "/projects/nutrimind/cover.png"
+flagship: true
+---
+
+## The problem
+
+Nutrition tracking apps like MacroFactor and MyFitnessPal are good at counting macros, but they stop there. They do not plan around the things that actually change how a diet works: nutrients that compete for absorption, fat-soluble vitamins that need the right meal, foods whose minerals are barely bioavailable. The obvious tool for that planning is a large language model, except an LLM left to its own devices will confidently invent nutrition facts. I wanted to see whether an agent could do this reasoning and still be trustworthy. NutriMind is the result: a personal-use planning agent I built solo.
+
+## Approach
+
+The whole design is built around one rule: the model is never allowed to state a nutrition fact from memory. Every per-100g value, every absorption rate, every interaction comes from a tool call against a curated database, and the agent cites the rule by ID in its reasoning so a human can audit it. The agent gets a small, sharp toolbox and an imperative workflow (calculate targets first, look up foods, check interactions, apply them, save last) rather than a vague "be a nutritionist" prompt. Grounding the agent this way is what turns a plausible-sounding chatbot into something whose output you can actually check.
+
+## Architecture
+
+- **Agent on the Claude Agent SDK** with four well-typed tools: `calculate_targets` (a pure BMR/TDEE and macro function), `lookup_food` (search the food database, with bioavailability flags), `query_interaction_rules` (pull relevant rules from the curated knowledge base), and `save_plan`.
+- **Anti-hallucination by construction:** the system prompt forbids using model-weight facts, requires every claim to come from a tool, and requires rule-ID citations. If a tool cannot supply something, the agent says so instead of filling the gap.
+- **An interaction engine, not just a chat:** rules carry an action (separate conflicting items into different meals, flag, move a supplement to the highest-fat meal, or warn), and the agent re-balances the plan after applying them. Bioavailability is handled explicitly, so a poorly absorbed nutrient (spinach calcium at roughly five percent) is not counted toward the target.
+- **Next.js 16 and SQLite:** the App Router with server actions runs the agent, `better-sqlite3` holds the foods and interaction rules, and a mock mode lets the whole flow run without an API key for development and demos.
+
+## What I'd do differently
+
+The agent currently returns its full transcript in one response; the natural next step is streaming, so the reasoning renders as it arrives. The knowledge base is deliberately small and hand-curated, which keeps it trustworthy but limits coverage; growing it, with a source for every rule, is where this would go next. It is a personal prototype, and explicitly not medical advice.
