@@ -1,5 +1,5 @@
 ---
-title: "polysearch"
+title: "PolySearch"
 slug: "polysearch"
 summary: "One SearchEngine interface across Elasticsearch, OpenSearch and Solr: a unified query language, autocomplete and faceting that behave the same on every engine, and a compare mode that runs one query across all three and shows where their relevance disagrees."
 stack: ["TypeScript", "Node.js", "Elasticsearch", "OpenSearch", "Solr", "Next.js"]
@@ -12,7 +12,7 @@ flagship: true
 
 ## The problem
 
-Most search code is written against one engine and quietly assumes that engine forever. Elasticsearch, OpenSearch and Solr all build on Lucene and BM25, yet each speaks a different query language and disagrees in subtle ways about ranking, so switching engines or comparing them honestly means rewriting queries and trusting your memory. I wanted a single, typed interface that hides those differences where they do not matter and surfaces them where they do. polysearch is the result: a TypeScript library, CLI and web UI I built solo.
+Most search code is written against one engine and quietly assumes that engine forever. Elasticsearch, OpenSearch and Solr all build on Lucene and BM25, yet each speaks a different query language and disagrees in subtle ways about ranking, so switching engines or comparing them honestly means rewriting queries and trusting your memory. I wanted a single, typed interface that hides those differences where they do not matter and surfaces them where they do. PolySearch is the result: a TypeScript library, CLI and web UI I built solo.
 
 ## Approach
 
