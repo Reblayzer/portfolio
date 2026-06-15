@@ -6,12 +6,6 @@ export type ProjectCard = {
   cover?: string;
 };
 
-export const projectCards: ProjectCard[] = [
-  {
-    title: "Real-Time CDC Pipeline",
-    summary:
-      "A production-shaped change-data-capture pipeline with a live storefront: place an order and watch it land in the analytics warehouse seconds later.",
-    stack: ["FastAPI", "Debezium / Kafka", "PySpark", "ClickHouse"],
-    links: { repo: "https://github.com/Reblayzer/realtime-cdc-pipeline" },
-  },
-];
+// All projects are now flagship case studies (see content/projects/*.mdx).
+// Lighter, one-line projects would go here as cards.
+export const projectCards: ProjectCard[] = [];

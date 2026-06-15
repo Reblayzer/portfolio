@@ -1,0 +1,31 @@
+---
+title: "Real-Time CDC Pipeline"
+slug: "cdc-pipeline"
+summary: "A production-shaped change-data-capture pipeline with a live storefront: place an order and watch it land in the analytics warehouse seconds later, with an ops dashboard reporting end-to-end latency, lag and a dead-letter queue."
+stack: ["FastAPI", "Debezium / Kafka", "PySpark", "ClickHouse", "React"]
+role: "Engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/realtime-cdc-pipeline" }
+cover: "/projects/cdc-pipeline/cover.png"
+flagship: true
+---
+
+## The problem
+
+Analytics teams want fresh data, but running reports against the operational database couples them to it and adds load, while nightly batch jobs leave the warehouse hours stale. Change data capture is the modern answer: stream every row-level change out of the source database as it happens. I wanted to build that properly, end to end, rather than read about it: a real pipeline where you place an order on a storefront and watch it appear in the analytics warehouse seconds later. This is that project, built solo.
+
+## Approach
+
+The capture is log-based, not polling-based: Debezium reads the Postgres write-ahead log, so the source database is never queried for changes and never modified with triggers. From there the changes flow through Kafka into a stream processor and land in a column-store warehouse built for analytics. The whole thing is deliberately production-shaped: every service has a health check, the warehouse is the only thing the dashboard reads from, and bad events are quarantined rather than allowed to break the stream. A storefront and an ops dashboard sit on top so the pipeline is something you can actually watch work, not just a diagram.
+
+## Architecture
+
+- **Capture (Debezium reads the Postgres WAL):** row-level change events are published to Kafka with no triggers and no polling, so the operational database is untouched.
+- **Stream processing (PySpark Structured Streaming):** the job consumes the Kafka topics, transforms the change events, and writes them to ClickHouse, checkpointing its Kafka offsets so it resumes exactly where it left off after a restart.
+- **Warehouse and reliability (ClickHouse):** the analytics tables live in a column store built for aggregation; malformed events are routed to a dead-letter queue instead of failing the batch.
+- **Observability:** the ops dashboard reads only from the warehouse and reports orders per minute, revenue, top SKUs, the row-count lag between Postgres and ClickHouse, and end-to-end latency percentiles, refreshing every few seconds.
+- **Demo and infrastructure:** a React storefront writes real orders through the whole chain, and the entire stack comes up from `docker-compose` with health checks and dependency ordering so services boot in topology order, no race conditions.
+
+## What I'd do differently
+
+The Spark job's checkpoint is its single recovery point, and an abrupt shutdown can leave the offset log half-written; production would put the checkpoint on durable storage and alert on consumer lag. Schema evolution is the next hardening step: Debezium handles a changing source schema, and the stream transform would need to follow it. As a learning build it is intentionally single-node, not a multi-broker, multi-partition deployment.
