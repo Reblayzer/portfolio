@@ -26,11 +26,11 @@ export function Nav() {
           <Image
             src="/ab-logo.svg"
             alt={site.name}
-            width={36}
+            width={56}
             height={36}
             priority
             unoptimized
-            className="h-9 w-9"
+            className="h-9 w-auto"
           />
         </Link>
         <ul className="hidden items-center gap-8 text-sm md:flex">
