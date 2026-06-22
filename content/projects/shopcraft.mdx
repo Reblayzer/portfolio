@@ -1,0 +1,34 @@
+---
+title: "Shopcraft"
+slug: "shopcraft"
+summary: "A custom Magento 2 storefront: a Knockout JS quick-view on the product listing and a pixel-focused Luma child theme, built in Magento's real frontend stack."
+stack: ["PHP", "Magento 2", "Knockout JS", "jQuery", "LESS", "JavaScript"]
+role: "Frontend engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/shopcraft" }
+cover: "/projects/shopcraft/cover.png"
+flagship: true
+---
+
+## The problem
+
+E-commerce frontend work at agencies runs on a specific stack: PHP, Knockout JS, jQuery and LESS, inside Magento. My production frontend had been React and Angular, so rather than put Magento on a CV and hope, I wanted real, defensible experience in it. Shopcraft is a small Magento 2 storefront I built to work the way a Magento frontend actually works, end to end.
+
+## Approach
+
+The piece is a custom module that adds a "quick view" to the product listing, plus a Luma child theme for the visual layer. The quick-view is a genuine Knockout component, not a bolt-on, and the add-to-cart reuses Magento's own machinery rather than reinventing it. The theme stays deliberate and restrained: the kind of pixel-level spacing and rhythm that e-commerce UIs live or die on.
+
+## Architecture
+
+- **The module (PHP):** registration, `module.xml`, and a config-backed ViewModel that gates the feature, with layout XML injecting a bootstrap block on category pages.
+- **The quick-view (Knockout JS + jQuery):** a `uiComponent` that adds a trigger to each product card, reads the product straight off the rendered card, and shows it in a Magento modal rendered from a Knockout template. Add to Cart submits the card's own Magento `tocart` form, so it inherits the native AJAX add and minicart update.
+- **The theme (LESS):** a Luma child with restrained variable overrides and pixel-level refinements to the product grid and the product page.
+- **Wiring:** `requirejs-config.js` and the standard `Magento_Ui/js/core/app` init, so the component boots the Magento way.
+
+## How I built it
+
+I work in AI-assisted development day to day, so Shopcraft was built with Claude Code and GitHub Copilot across both the design and the implementation, reviewing the generated code before it ships. The repo is structured as installable Magento composer packages (a module and a theme), and CI runs PHP lint and the Magento Coding Standard on every push.
+
+## What I'd do differently
+
+The quick-view reads product data from the rendered card, which is pragmatic but couples it to Luma's markup. A cleaner version would expose that data through a small JSON endpoint or a proper UI component data source. The theme overrides are intentionally minimal here; a production theme would formalise the design tokens rather than touch component styles directly.
