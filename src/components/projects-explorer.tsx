@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { track } from "@vercel/analytics";
 import {
   type Project,
   type ProjectCategory,
@@ -40,15 +41,19 @@ export function ProjectsExplorer({
     [params, router],
   );
 
-  const toggleCategory = (c: ProjectCategory) =>
+  const toggleCategory = (c: ProjectCategory) => {
+    if (category !== c) track("filter_category", { category: c });
     setParams((p) => (category === c ? p.delete("category") : p.set("category", c)));
+  };
 
   const toggleTag = (t: string) =>
     setParams((p) => {
       const norm = normalizeTag(t);
       const current = p.getAll("tag");
       p.delete("tag");
-      const nextTags = current.some((x) => normalizeTag(x) === norm)
+      const isRemoving = current.some((x) => normalizeTag(x) === norm);
+      if (!isRemoving) track("filter_tech", { tag: normalizeTag(t) });
+      const nextTags = isRemoving
         ? current.filter((x) => normalizeTag(x) !== norm)
         : [...current, t];
       for (const x of nextTags) p.append("tag", x);
