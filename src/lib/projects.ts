@@ -27,9 +27,6 @@ export function normalizeTag(value: string): string {
   return value.toLowerCase().trim();
 }
 
-import { listFlagships } from "@/lib/mdx";
-import { projectCards } from "@content/projects/_cards";
-
 export type Project = {
   title: string;
   summary: string;
@@ -43,47 +40,6 @@ export type Project = {
   featured?: boolean;
   impact?: string;
 };
-
-function sortProjects(projects: Project[]): Project[] {
-  const shipped = projects
-    .filter((p) => p.status === "shipped")
-    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-  const inProgress = projects
-    .filter((p) => p.status === "in-progress")
-    .sort((a, b) => a.title.localeCompare(b.title));
-  return [...shipped, ...inProgress];
-}
-
-export async function getAllProjects(): Promise<Project[]> {
-  const flagships = await listFlagships();
-  const fromFlagships: Project[] = flagships.map((f) => ({
-    title: f.title,
-    summary: f.summary,
-    category: f.category,
-    tags: f.stack,
-    status: "shipped",
-    year: f.year,
-    cover: f.cover,
-    links: f.links,
-    href: `/projects/${f.slug}`,
-    featured: f.featured ?? false,
-    impact: f.impact,
-  }));
-  const fromCards: Project[] = projectCards.map((c) => ({
-    title: c.title,
-    summary: c.summary,
-    category: c.category,
-    tags: c.stack,
-    status: "in-progress",
-    cover: c.cover,
-    links: c.links,
-  }));
-  return sortProjects([...fromFlagships, ...fromCards]);
-}
-
-export async function getFeaturedProjects(): Promise<Project[]> {
-  return (await getAllProjects()).filter((p) => p.featured);
-}
 
 export function techTagOptions(projects: Project[]): string[] {
   const counts = new Map<string, { label: string; count: number }>();

@@ -1,12 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
-  getAllProjects,
-  getFeaturedProjects,
-  techTagOptions,
   filterProjects,
+  techTagOptions,
   CATEGORY_LABELS,
   type Project,
 } from "@/lib/projects";
+import { getAllProjects, getFeaturedProjects } from "@/lib/projects.server";
 
 const sample: Project[] = [
   { title: "Alpha", summary: "Kafka streaming pipeline", category: "data-eng", tags: ["Kafka", "Python"], status: "shipped", year: 2026, links: {} },
