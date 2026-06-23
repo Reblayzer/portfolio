@@ -64,6 +64,10 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">{project.summary}</p>
 
+        {project.impact && (
+          <p className="mt-4 max-w-2xl text-base text-foreground">{project.impact}</p>
+        )}
+
         <ul className="mt-6 flex flex-wrap gap-1.5">
           {project.stack.map((t) => (
             <li
