@@ -1,7 +1,13 @@
+import Link from "next/link";
 import { FadeInSection } from "@/components/fade-in-section";
 import { skillGroups } from "@content/skills";
+import { getAllProjects } from "@/lib/projects.server";
+import { normalizeTag } from "@/lib/projects";
 
-export function Skills() {
+export async function Skills() {
+  const projects = await getAllProjects();
+  const tagSet = new Set(projects.flatMap((p) => p.tags.map(normalizeTag)));
+
   return (
     <FadeInSection id="skills" className="mx-auto max-w-3xl px-6 py-24">
       <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -18,14 +24,22 @@ export function Skills() {
             </dt>
             <dd>
               <ul className="flex flex-wrap gap-1.5">
-                {group.items.map((item) => (
-                  <li
-                    key={item}
-                    className="rounded-md border border-border bg-foreground/[0.02] px-2.5 py-1 font-mono text-xs text-foreground"
-                  >
-                    {item}
-                  </li>
-                ))}
+                {group.items.map((item) => {
+                  const linkable = tagSet.has(normalizeTag(item));
+                  const className =
+                    "rounded-md border border-border bg-foreground/[0.02] px-2.5 py-1 font-mono text-xs text-foreground";
+                  return (
+                    <li key={item}>
+                      {linkable ? (
+                        <Link href={`/projects?tag=${encodeURIComponent(item)}`} className={`${className} transition-colors hover:border-foreground/30`}>
+                          {item}
+                        </Link>
+                      ) : (
+                        <span className={className}>{item}</span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </dd>
           </div>
