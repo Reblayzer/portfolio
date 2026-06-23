@@ -5,10 +5,11 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { buildMetadata } from "@/lib/site-metadata";
+import { site } from "@content/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  ...buildMetadata({ description: "Software engineer. Frontend-focused, full-stack capable." }),
+  ...buildMetadata({ description: site.pitch }),
   title: { default: "Alexandro Bolfa", template: "%s · Alexandro Bolfa" },
 };
 

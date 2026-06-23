@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { site } from "@content/site";
 
 export const runtime = "edge";
 export const alt = "Alexandro Bolfa, Software engineer";
@@ -29,7 +30,7 @@ export default async function OpengraphImage() {
             Alexandro Bolfa
           </div>
           <div style={{ fontSize: 32, color: "#a1a1aa" }}>
-            Software engineer. Frontend-focused, full-stack capable.
+            {site.pitch}
           </div>
         </div>
         <div style={{ fontSize: 22, color: "#71717a" }}>alexandro-bolfa.com</div>
