@@ -1,0 +1,36 @@
+---
+title: "LedgerNudge"
+slug: "ledgernudge"
+summary: "An AI-native B2B invoice follow-up tool: Claude drafts respectful payment reminders, a human approves them, Stripe takes payment, and Claude reads each reply to decide whether to keep going or pause for a dispute."
+stack: ["Laravel", "PHP", "React", "TypeScript", "PostgreSQL", "Stripe", "Anthropic Claude"]
+role: "Full-stack engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/ledgernudge" }
+cover: "/projects/ledgernudge/cover.png"
+flagship: true
+---
+
+## The problem
+
+Chasing unpaid B2B invoices (dunning) is mostly manual, repetitive, and easy to get wrong: send too softly and nobody pays, send too aggressively and you damage the relationship. I wanted to see how much of that follow-up loop could become software where a person still controls anything that leaves the building, and a language model handles the parts it is genuinely good at: writing the message and reading the reply. I also set myself a constraint: build it solo in Laravel and PHP, a stack I had not written before, to prove I can ramp fast on a new language with AI directing the work. LedgerNudge is a deliberately scoped slice of that idea, presented honestly as a portfolio project rather than a product.
+
+## Approach
+
+The whole design is human-in-the-loop. Claude drafts each reminder from the invoice, the debtor's history, and a per-account tone policy; an operator approves or edits the draft before it is ever sent; approved messages go out over a queue. Stripe takes the payment through a hosted link, and a webhook reconciles the result back onto the invoice. Inbound replies feed back in: Claude classifies each one, and a dispute (or anything the model is not confident about) pauses the sequence and flags a human. The bias is deliberately toward pausing: when in doubt, stop and ask a person.
+
+## Architecture
+
+- **Backend (Laravel 12 / PHP):** queue workers, webhook routes, and Eloquent models, with the operator UI and the API in one deployable via Inertia. Money is stored in integer cents, never floats.
+- **Append-only event log:** every meaningful action (draft, approve, send, payment, reply, classification, pause) writes one immutable row. It is the source of truth for exactly what was sent and why, and it drives the operator inbox.
+- **Payments (Stripe):** a hosted Checkout link per invoice and a signature-verified webhook that marks invoices paid, partial, or failed. It is idempotent: each Stripe event id is recorded so duplicate deliveries no-op, and amounts are written absolutely so retries converge to the same state.
+- **AI (Anthropic Claude):** drafts each message (prompts live in version-controlled files, token usage is logged) and classifies replies into dispute, promise-to-pay, paid, stop, or unknown.
+- **Sending (Redis queue + Twilio + mailer):** a scheduled command walks past-due invoices and enqueues the next step (day 0 / 7 / 14); approval enqueues a rate-limited send over email or Twilio SMS.
+- **Testability:** every external service sits behind an interface, so the domain logic is unit-tested against in-memory fakes with no live API calls.
+
+## How I built it
+
+I delivered it in SCRUM-style sprints, each one leaving the project working and tested and landing as a single commit, so the git history reads like a delivery log. Every push runs CI (the test suite plus linters for PHP and the frontend). Because I had never written PHP or Laravel before, I used Claude Code to direct the work and learned the framework by shipping it, one reviewable slice at a time.
+
+## What I'd do differently
+
+The thin adapters that wrap the real Stripe, Claude, and Twilio SDKs are not unit-tested, because that needs live credentials; the seams around them are, which is where the logic actually lives. The email inbound route trusts its payload as a simplified stand-in for verifying a mail provider's signature. Voice follow-ups, multi-tenant brand isolation beyond the tone-policy field, and a real jurisdiction-aware compliance rules engine are named in the README as the next layers, not built.
