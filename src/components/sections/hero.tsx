@@ -27,6 +27,12 @@ export function Hero() {
         >
           Get in touch
         </Link>
+        <a
+          href="/resume.pdf"
+          className="inline-flex h-10 items-center rounded-md border border-border px-5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5"
+        >
+          Download CV
+        </a>
       </div>
     </section>
   );

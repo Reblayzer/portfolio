@@ -44,6 +44,14 @@ export function Nav() {
               </Link>
             </li>
           ))}
+          <li>
+            <a
+              href="/resume.pdf"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              CV
+            </a>
+          </li>
         </ul>
         <div className="flex items-center gap-2">
           <ThemeToggle />
