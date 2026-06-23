@@ -95,6 +95,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               alt={`Cover image for ${project.title}`}
               fill
               sizes="(min-width: 768px) 720px, 100vw"
+              quality={100}
               priority
               className="object-cover"
             />

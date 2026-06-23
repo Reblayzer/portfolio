@@ -23,6 +23,7 @@ export function FlagshipProjectCard({ slug, title, summary, stack, cover }: Prop
             alt=""
             fill
             sizes="(min-width: 768px) 720px, 100vw"
+            quality={100}
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           />
         </div>
