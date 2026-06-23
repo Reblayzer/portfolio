@@ -31,8 +31,12 @@ export async function Projects() {
 
       {projectCards.length > 0 && (
         <>
-          <p className="mt-16 mb-6 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            More projects
+          <p className="mt-16 mb-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            In progress
+          </p>
+          <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
+            Scoped projects in progress, each with a brief and a target stack.
+            They graduate to case studies above once built.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             {projectCards.map((p) => (
