@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
+import type { ProjectCategory } from "@/lib/projects";
 
 export type FlagshipFrontmatter = {
   title: string;
@@ -12,6 +13,9 @@ export type FlagshipFrontmatter = {
   links: { live?: string; repo?: string };
   cover?: string;
   flagship: true;
+  category: ProjectCategory;
+  featured?: boolean;
+  impact?: string;
 };
 
 export type FlagshipProject = FlagshipFrontmatter & { body: string };
@@ -45,6 +49,9 @@ function parse(file: string, raw: string): FlagshipProject {
     links: fm.links ?? {},
     cover: fm.cover,
     flagship: true,
+    category: (fm.category as ProjectCategory) ?? "backend",
+    featured: fm.featured ?? false,
+    impact: fm.impact,
     body: content,
   };
 }
