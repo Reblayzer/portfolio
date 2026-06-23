@@ -69,6 +69,12 @@ export function ProjectsExplorer({
     [projects, category, tags, q],
   );
 
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of projects) counts[p.category] = (counts[p.category] ?? 0) + 1;
+    return counts;
+  }, [projects]);
+
   const hasFilters = Boolean(category) || tags.length > 0 || q.length > 0;
   const activeTag = (t: string) => tags.some((x) => normalizeTag(x) === normalizeTag(t));
 
@@ -85,6 +91,18 @@ export function ProjectsExplorer({
         />
 
         <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            aria-pressed={!category}
+            onClick={() => setParams((p) => p.delete("category"))}
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+              !category
+                ? "border-accent bg-accent text-accent-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All ({projects.length})
+          </button>
           {CATEGORY_ORDER.map((c) => (
             <button
               key={c}
@@ -97,7 +115,7 @@ export function ProjectsExplorer({
                   : "border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              {CATEGORY_LABELS[c]}
+              {CATEGORY_LABELS[c]} ({categoryCounts[c] ?? 0})
             </button>
           ))}
         </div>
