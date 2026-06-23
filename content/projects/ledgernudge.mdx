@@ -23,6 +23,8 @@ The whole design is human-in-the-loop. Claude drafts each reminder from the invo
 
 ## Architecture
 
+<Architecture src="/projects/ledgernudge/architecture.svg" caption="The dunning loop: draft, approve, send, reconcile, classify, pause." />
+
 - **Backend (Laravel 12 / PHP):** queue workers, webhook routes, and Eloquent models, with the operator UI and the API in one deployable via Inertia. Money is stored in integer cents, never floats.
 - **Append-only event log:** every meaningful action (draft, approve, send, payment, reply, classification, pause) writes one immutable row. It is the source of truth for exactly what was sent and why, and it drives the operator inbox.
 - **Payments (Stripe):** a hosted Checkout link per invoice and a signature-verified webhook that marks invoices paid, partial, or failed. It is idempotent: each Stripe event id is recorded so duplicate deliveries no-op, and amounts are written absolutely so retries converge to the same state.

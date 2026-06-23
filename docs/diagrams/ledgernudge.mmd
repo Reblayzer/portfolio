@@ -1,0 +1,14 @@
+flowchart LR
+  Sched["dunning:advance (scheduled)"] -->|past-due step| Queue["Redis queue"]
+  Queue -->|draft job| Draft["DunningDraftService"]
+  Draft <-->|message draft| Claude["Anthropic Claude"]
+  Draft -->|pending_approval| DB[("PostgreSQL")]
+  Inbox["Operator inbox"] -->|approve| Queue
+  Queue -->|send job| Send["MessageSender"]
+  Send -->|email / SMS| Twilio["Twilio + email"]
+  Inbox -->|create link| Stripe["Stripe"]
+  Stripe -->|webhook| Recon["WebhookReconciler"] --> DB
+  Twilio -->|inbound reply| Reply["InboundReplyService"]
+  Reply <-->|classify| Claude
+  Reply -->|dispute pauses sequence| DB
+  DB --> Inbox

@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx,json,css}\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "diagrams": "mmdc -i docs/diagrams/ledgernudge.mmd -o public/projects/ledgernudge/architecture.svg -b transparent -p puppeteer-config.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -44,6 +45,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.15.0",
     "@tailwindcss/postcss": "^4",
     "@types/mdx": "^2.0.13",
     "@types/node": "^20",

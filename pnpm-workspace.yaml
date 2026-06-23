@@ -3,5 +3,6 @@ ignoredBuiltDependencies:
   - unrs-resolver
 allowBuilds:
   msw: false
+  puppeteer: true
   sharp: false
   unrs-resolver: false

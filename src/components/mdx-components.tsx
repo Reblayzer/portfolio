@@ -1,6 +1,8 @@
 import type { MDXComponents } from "mdx/types";
+import { Architecture } from "@/components/architecture";
 
 export const mdxComponents: MDXComponents = {
+  Architecture,
   h2: ({ children }) => (
     <h2 className="mt-12 font-mono text-2xl font-medium tracking-tight text-foreground">
       {children}
