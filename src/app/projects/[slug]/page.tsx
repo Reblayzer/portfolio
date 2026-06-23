@@ -8,7 +8,7 @@ import { getFlagshipBySlug, listFlagships } from "@/lib/mdx";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { mdxComponents } from "@/components/mdx-components";
-import { buildMetadata } from "@/lib/site-metadata";
+import { buildMetadata, siteUrl } from "@/lib/site-metadata";
 
 export const dynamicParams = false;
 
@@ -45,6 +45,19 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             description: project.summary,
             datePublished: `${project.year}-01-01`,
             author: { "@type": "Person", name: "Alexandro Bolfa" },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            name: project.title,
+            description: project.summary,
+            url: `${siteUrl}/projects/${project.slug}`,
+            ...(project.links?.repo ? { codeRepository: project.links.repo } : {}),
           }),
         }}
       />
