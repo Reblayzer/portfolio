@@ -54,6 +54,17 @@
     scroll-behavior: smooth;
     scroll-padding-top: 5rem; /* 4rem nav + 1rem clearance */
   }
+  /* Anchored sections carry py-24 (6rem) top padding. Cancel it on a hash jump
+     so the heading lands at the scroll-padding-top line (just under the nav)
+     instead of leaving the empty top padding, which read as a centered section.
+     Keep this offset in sync with the sections' top padding. */
+  #about,
+  #skills,
+  #experience,
+  #work,
+  #contact {
+    scroll-margin-top: -6rem;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
