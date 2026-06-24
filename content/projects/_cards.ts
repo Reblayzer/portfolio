@@ -261,12 +261,4 @@ export const projectCards: ProjectCard[] = [
     category: "frontend",
     links: {},
   },
-  {
-    title: "WagerLedger",
-    summary:
-      "An event-sourced player wallet and betting ledger where every balance change is an append-only event, projected to a SQL read model and fanned out over messaging.",
-    stack: ["C#/.NET", "EventStore", "RabbitMQ", "SQL Server", "Docker"],
-    category: "backend",
-    links: {},
-  },
 ];

@@ -1,0 +1,38 @@
+---
+title: "WagerLedger"
+slug: "wagerledger"
+summary: "An event-sourced player wallet and betting ledger where every balance change is an append-only event, projected to a SQL read model and fanned out over messaging."
+stack: ["C#/.NET", "Event Sourcing", "KurrentDB", "RabbitMQ", "SQL Server"]
+role: "Backend engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/wagerledger" }
+flagship: true
+category: "backend"
+featured: true
+impact: "Models a financial ledger as an append-only event stream on KurrentDB, enforces responsible-gaming rules in the domain, and serves balances and statements from a SQL Server projection behind an ASP.NET Core API."
+---
+
+## The problem
+
+A player wallet is a financial ledger, and a ledger should never lose history. Storing only the current balance throws away the one thing an auditor, a dispute, or a bug investigation actually needs: how the balance got there. I wanted to build the wallet the way the domain really works, where the events are the source of truth and the balance is just a view derived from them. WagerLedger is that build: an event-sourced wallet and betting ledger I wrote solo, end to end.
+
+## Approach
+
+Every command (deposit, withdraw, place bet, settle bet) loads the wallet by replaying its event stream, checks the domain rules, and appends new events. Nothing mutates a balance in place. The write side is decoupled from the read side: a projector turns the same events into a SQL read model the API queries, and the events are also published over messaging so independent consumers can react without coupling to the core. A responsible-gaming deposit limit lives in the domain itself, rebuilt from events so it holds even for a reconstituted wallet.
+
+## Architecture
+
+- **Domain (C# / .NET):** a pure, dependency-free Wallet aggregate. Commands raise events; the balance and invariants (no overdraft, validated amounts, a deposit limit) are derived by replay. Rule violations throw typed domain errors.
+- **Event store (KurrentDB):** one append-only stream per wallet, with optimistic concurrency on the expected version so concurrent writers cannot silently clobber each other.
+- **Messaging (RabbitMQ):** committed events are published to a topic exchange as self-describing envelopes; a deposit-limit watcher subscribes independently and flags a player once cumulative deposits cross a threshold.
+- **Read model (EF Core / SQL Server):** a projector builds a balance row and a signed statement per player; the balance math is shared with the aggregate so the two sides cannot drift.
+- **API (ASP.NET Core):** issues commands and serves balance and statement queries behind one response envelope, mapping domain and concurrency errors to clean HTTP status codes.
+- **Infrastructure:** the whole stack comes up from docker compose, and an Azure Pipelines workflow builds, tests, and containerises the API.
+
+## How I built it
+
+I worked test-first in small, self-contained commits, so the git history reads like a delivery log. The suite pairs fast unit tests for the domain and application with integration tests that run against real KurrentDB, RabbitMQ, and SQL Server containers and skip cleanly when the infrastructure is not up. One shared store contract runs against both an in-memory adapter and the KurrentDB adapter, so both are held to identical behaviour. I verified the full flow by running the built container against the live stack and watching a deposit travel from the API through the event store and messaging into the read model.
+
+## What I'd do differently
+
+The read model projects from the message bus, which is at-least-once; a production version would dedupe by event id, or project directly from the event store with stored checkpoints so it can rebuild deterministically. The internals also assume a trusted caller, so real authentication and per-player authorization are the natural next step.
