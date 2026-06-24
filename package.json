@@ -14,7 +14,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx,json,css}\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "diagrams": "mmdc -i docs/diagrams/ledgernudge.mmd -o public/projects/ledgernudge/architecture.svg -b transparent -p puppeteer-config.json"
+    "diagrams": "mmdc -i docs/diagrams/ledgernudge.mmd -o public/projects/ledgernudge/architecture.svg -b transparent -p puppeteer-config.json",
+    "resume": "node scripts/generate-resume.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
