@@ -1,6 +1,6 @@
 @page {
   size: A4;
-  margin: 9mm 13mm;
+  margin: 8mm 13mm;
 }
 
 .page {
@@ -63,9 +63,26 @@
   margin-top: 2.5mm;
   display: flex;
   flex-wrap: wrap;
-  gap: 1mm 5mm;
+  align-items: baseline;
+  gap: 1.5mm 5mm;
   font-size: 8.5pt;
   color: #27272a;
+  list-style: none;
+  padding: 0;
+}
+
+.contactItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.5mm;
+}
+
+.contactLabel {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 6.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #52525b;
 }
 
 .contact a {
@@ -82,7 +99,7 @@
 }
 
 .section {
-  margin-bottom: 2mm;
+  margin-bottom: 1.5mm;
 }
 
 .sectionTitle {

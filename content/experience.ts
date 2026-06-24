@@ -21,9 +21,9 @@ export const experience: ExperienceEntry[] = [
     start: "2024-01",
     end: "2026-01",
     bullets: [
-      "Shipped frontend features end to end on the EcoStruxure Power SaaS platform as a member of an empowered Scrum team inside a global release train of distributed teams across Europe, North America and Asia.",
-      "Built custom UI components for data-heavy tables and dashboards, and delivered a full-stack feature where I owned the REST endpoint, the database query layer, and the Angular view on top of it.",
-      "Worked across React, Angular, TypeScript, C#/.NET, Java/Spring Boot, REST and gRPC, Kafka Streams, and CI/CD on Jenkins and GitHub Actions, with GitHub Copilot in every coding session.",
+      "Shipped production features end to end on the EcoStruxure Power SaaS platform as a member of an empowered Scrum team inside a global release train of eight distributed teams across Europe, North America and Asia, owning tasks from refinement through implementation, unit tests, code review, CI/CD, and production support.",
+      "Worked full-stack on a microservice, event-driven architecture: REST and gRPC services, the database query layer, and the UI on top, with Kafka Streams for event flows and both SQL (CockroachDB) and NoSQL (Cassandra, Elasticsearch) data stores.",
+      "Built with Java and C#/.NET on the backend and React, Angular and TypeScript on the frontend, running on Docker, Kubernetes and Azure with Kibana for monitoring and CI/CD on Jenkins and GitHub Actions, and GitHub Copilot in every coding session.",
     ],
   },
 ];
