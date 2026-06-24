@@ -1,0 +1,190 @@
+@page {
+  size: A4;
+  margin: 14mm 16mm;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 14mm 16mm;
+  background: #ffffff;
+  color: #0a0a0a;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.45;
+}
+
+@media print {
+  .page {
+    width: auto;
+    min-height: auto;
+    padding: 0;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10mm;
+  margin-bottom: 6mm;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.logo {
+  height: 9mm;
+  width: auto;
+  margin-bottom: 4mm;
+  display: block;
+}
+
+.name {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 22pt;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.title {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #52525b;
+  margin-top: 2mm;
+}
+
+.contact {
+  margin-top: 4mm;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 5mm;
+  font-size: 8.5pt;
+  color: #27272a;
+}
+
+.contact a {
+  color: #27272a;
+  text-decoration: none;
+}
+
+.photo {
+  width: 30mm;
+  height: 30mm;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.section {
+  margin-bottom: 4.5mm;
+}
+
+.sectionTitle {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #2563eb;
+  border-bottom: 1px solid rgb(0 0 0 / 0.1);
+  padding-bottom: 1.5mm;
+  margin-bottom: 3mm;
+}
+
+.profile p {
+  margin-bottom: 2mm;
+}
+
+.skillRow {
+  display: flex;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+}
+
+.skillLabel {
+  font-weight: 600;
+  min-width: 32mm;
+  flex-shrink: 0;
+}
+
+.skillItems {
+  color: #27272a;
+}
+
+.entry {
+  margin-bottom: 3mm;
+}
+
+.entryHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4mm;
+}
+
+.entryRole {
+  font-weight: 600;
+}
+
+.entryMeta {
+  color: #52525b;
+  font-size: 8.5pt;
+  white-space: nowrap;
+}
+
+.entrySub {
+  color: #52525b;
+  font-size: 8.5pt;
+  margin-bottom: 1.5mm;
+}
+
+.bullets {
+  list-style: disc;
+  padding-left: 4.5mm;
+}
+
+.bullets li {
+  margin-bottom: 1mm;
+}
+
+.project {
+  margin-bottom: 2.5mm;
+}
+
+.projectName {
+  font-weight: 600;
+}
+
+.projectLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 8.5pt;
+  white-space: nowrap;
+}
+
+.projectStack {
+  color: #52525b;
+  font-size: 8pt;
+  margin-top: 0.5mm;
+}
+
+.focus {
+  font-size: 9pt;
+  margin-top: 2mm;
+}
+
+.focus a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 5mm;
+}
