@@ -4,11 +4,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@content/site";
 
 const links = [
-  { href: "#about", label: "About" },
-  { href: "#skills", label: "Skills" },
-  { href: "#experience", label: "Experience" },
-  { href: "#work", label: "Work" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#about", label: "About" },
+  { href: "/#skills", label: "Skills" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#work", label: "Work" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export function Nav() {
