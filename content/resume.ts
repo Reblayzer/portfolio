@@ -30,10 +30,10 @@ export const resumeContact: ResumeContact[] = [
   { label: "Location", value: site.location },
   { label: "Email", value: site.email, href: `mailto:${site.email}` },
   { label: "Site", value: "alexandro-bolfa.com", href: "https://alexandro-bolfa.com" },
-  { label: "GitHub", value: "github.com/Reblayzer", href: "https://github.com/Reblayzer" },
+  { label: "GitHub", value: "Reblayzer", href: "https://github.com/Reblayzer" },
   {
     label: "LinkedIn",
-    value: "linkedin.com/in/alexandro-bolfa",
+    value: "alexandro-bolfa",
     href: "https://www.linkedin.com/in/alexandro-bolfa/",
   },
 ];
@@ -48,7 +48,7 @@ export const resumeExperience: ResumeExperience = {
     "Shipped features end to end on the EcoStruxure Power SaaS platform as a member of an empowered Scrum team inside a global release train of eight distributed teams across Europe, North America and Asia (around 60 engineers).",
     "Delivered a full-stack feature owning the REST endpoint, the database query layer, and the Angular view: a new tab listing generated scheduled reports for UPS assets, with custom data-heavy table components and cell renderers.",
     "Ramped fast onto a second international release on a C#/.NET and React micro-frontend architecture, integrating a custom date-range picker into the in-house Quartz design system and becoming a reference person for teammates joining the same stack.",
-    "Owned tasks through refinement, implementation, unit tests (xUnit, JUnit), code review, and CI/CD (Jenkins, GitHub Actions); worked with Kafka Streams, gRPC, SQL and NoSQL stores, and Azure, with GitHub Copilot in every coding session.",
+    "Owned tasks through refinement, implementation, unit tests (xUnit, JUnit), code review, CI/CD (Jenkins, GitHub Actions), and production support; worked across Java and C#/.NET on a microservice, event-driven architecture with Kafka Streams and gRPC, SQL (CockroachDB) and NoSQL (Cassandra, Elasticsearch) stores, and Docker, Kubernetes and Azure, with GitHub Copilot in every coding session.",
   ],
 };
 

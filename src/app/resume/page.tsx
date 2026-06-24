@@ -27,11 +27,14 @@ export default function ResumePage() {
           <img src="/ab-logo.svg" alt="" className={styles.logo} />
           <h1 className={styles.name}>{site.name}</h1>
           <p className={styles.title}>{resumeTitle}</p>
-          <div className={styles.contact}>
+          <ul className={styles.contact}>
             {resumeContact.map((c) => (
-              <span key={c.label}>{c.href ? <a href={c.href}>{c.value}</a> : c.value}</span>
+              <li key={c.label} className={styles.contactItem}>
+                <span className={styles.contactLabel}>{c.label}</span>
+                {c.href ? <a href={c.href}>{c.value}</a> : <span>{c.value}</span>}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/headshot.jpg" alt={site.name} className={styles.photo} />
