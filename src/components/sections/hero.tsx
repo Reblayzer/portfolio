@@ -5,7 +5,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-3xl flex-col items-center justify-center px-6 text-center"
+      className="mx-auto flex min-h-[calc(100svh-4rem)] max-w-3xl flex-col items-center justify-center px-6 text-center"
     >
       <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
         {site.location} · Open to new opportunities
