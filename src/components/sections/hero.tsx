@@ -7,8 +7,10 @@ export function Hero() {
       id="top"
       className="mx-auto flex min-h-[calc(100svh-4rem)] max-w-3xl flex-col items-center justify-center px-6 text-center"
     >
-      <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-        {site.location} · Open to new opportunities
+      <p className="mb-6 font-mono text-xs uppercase leading-relaxed tracking-[0.18em] text-muted-foreground">
+        {site.location}
+        <br />
+        Open to new opportunities
       </p>
       <h1 className="font-mono text-5xl font-medium tracking-[-0.04em] text-foreground md:text-6xl">
         {site.name}

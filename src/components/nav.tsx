@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@content/site";
 
@@ -12,6 +16,20 @@ const links = [
 ];
 
 export function Nav() {
+  const [open, setOpen] = useState(false);
+
+  // Close the mobile menu on Escape for keyboard users.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const closeMenu = () => setOpen(false);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <nav
@@ -22,6 +40,7 @@ export function Nav() {
           href="/"
           className="inline-flex items-center"
           aria-label={`${site.name}, home`}
+          onClick={closeMenu}
         >
           <Image
             src="/ab-logo.svg"
@@ -55,8 +74,45 @@ export function Nav() {
         </ul>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            className="inline-flex size-9 items-center justify-center rounded-md text-foreground transition-colors hover:bg-foreground/5 md:hidden"
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
         </div>
       </nav>
+
+      {open && (
+        <div id="mobile-menu" className="border-t border-border bg-background md:hidden">
+          <ul className="mx-auto flex max-w-5xl flex-col px-6 py-2 text-sm">
+            {links.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  onClick={closeMenu}
+                  className="block py-2.5 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <a
+                href="/resume.pdf"
+                onClick={closeMenu}
+                className="block py-2.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                CV
+              </a>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   );
 }
