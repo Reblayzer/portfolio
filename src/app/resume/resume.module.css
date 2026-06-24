@@ -1,6 +1,6 @@
 @page {
   size: A4;
-  margin: 14mm 16mm;
+  margin: 9mm 13mm;
 }
 
 .page {
@@ -11,8 +11,8 @@
   background: #ffffff;
   color: #0a0a0a;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-size: 9.5pt;
-  line-height: 1.45;
+  font-size: 9pt;
+  line-height: 1.28;
 }
 
 @media print {
@@ -28,7 +28,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 10mm;
-  margin-bottom: 6mm;
+  margin-bottom: 4mm;
 }
 
 .headerLeft {
@@ -44,7 +44,7 @@
 
 .name {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 22pt;
+  font-size: 20pt;
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -60,7 +60,7 @@
 }
 
 .contact {
-  margin-top: 4mm;
+  margin-top: 2.5mm;
   display: flex;
   flex-wrap: wrap;
   gap: 1mm 5mm;
@@ -74,15 +74,15 @@
 }
 
 .photo {
-  width: 30mm;
-  height: 30mm;
+  width: 28mm;
+  height: 28mm;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
 }
 
 .section {
-  margin-bottom: 4.5mm;
+  margin-bottom: 2mm;
 }
 
 .sectionTitle {
@@ -92,12 +92,12 @@
   letter-spacing: 0.16em;
   color: #2563eb;
   border-bottom: 1px solid rgb(0 0 0 / 0.1);
-  padding-bottom: 1.5mm;
-  margin-bottom: 3mm;
+  padding-bottom: 1mm;
+  margin-bottom: 2mm;
 }
 
 .profile p {
-  margin-bottom: 2mm;
+  margin-bottom: 1.4mm;
 }
 
 .skillRow {
@@ -117,7 +117,7 @@
 }
 
 .entry {
-  margin-bottom: 3mm;
+  margin-bottom: 1.4mm;
 }
 
 .entryHead {
@@ -149,11 +149,11 @@
 }
 
 .bullets li {
-  margin-bottom: 1mm;
+  margin-bottom: 0.6mm;
 }
 
 .project {
-  margin-bottom: 2.5mm;
+  margin-bottom: 1.2mm;
 }
 
 .projectName {
