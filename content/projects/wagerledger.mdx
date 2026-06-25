@@ -6,6 +6,7 @@ stack: ["C#/.NET", "Event Sourcing", "KurrentDB", "RabbitMQ", "SQL Server"]
 role: "Backend engineer (solo build)"
 year: 2026
 links: { repo: "https://github.com/Reblayzer/wagerledger" }
+cover: "/projects/wagerledger/cover.png"
 flagship: true
 category: "backend"
 featured: true
@@ -19,6 +20,8 @@ A player wallet is a financial ledger, and a ledger should never lose history. S
 ## Approach
 
 Every command (deposit, withdraw, place bet, settle bet) loads the wallet by replaying its event stream, checks the domain rules, and appends new events. Nothing mutates a balance in place. The write side is decoupled from the read side: a projector turns the same events into a SQL read model the API queries, and the events are also published over messaging so independent consumers can react without coupling to the core. A responsible-gaming deposit limit lives in the domain itself, rebuilt from events so it holds even for a reconstituted wallet.
+
+<Architecture src="/projects/wagerledger/architecture.svg" caption="Commands fork from the API: load and replay against KurrentDB on the write side, publish over RabbitMQ, and query the SQL Server read model the projector builds." />
 
 ## Architecture
 

@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "diagrams": "mmdc -i docs/diagrams/ledgernudge.mmd -o public/projects/ledgernudge/architecture.svg -b transparent -p puppeteer-config.json",
+    "diagram:wagerledger": "node scripts/render-diagram.mjs",
     "resume": "node scripts/generate-resume.mjs"
   },
   "dependencies": {
