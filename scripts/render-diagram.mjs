@@ -172,27 +172,18 @@ ${parts.join("\n")}
 await fs.mkdir(outDir, { recursive: true });
 await fs.writeFile(path.join(outDir, "architecture.svg"), diagramSvg, "utf8");
 
-// ---- compose the branded 16:9 cover ----
+// ---- compose the 16:9 cover (diagram only; the page supplies title + tech) ----
 const COVER_W = 1600;
 const COVER_H = 900;
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   html, body { margin: 0; padding: 0; background: #ffffff; }
   .cover {
-    width: ${COVER_W}px; height: ${COVER_H}px; box-sizing: border-box; padding: 56px 80px;
-    display: flex; flex-direction: column; background: #ffffff; font-family: ${MONO};
+    width: ${COVER_W}px; height: ${COVER_H}px; box-sizing: border-box; padding: 56px 64px;
+    display: flex; align-items: center; justify-content: center; background: #ffffff;
   }
-  .eyebrow { font-size: 17px; letter-spacing: 0.22em; text-transform: uppercase; color: ${ACCENT}; font-weight: 600; }
-  .title { font-size: 60px; font-weight: 700; color: ${INK}; margin-top: 14px; letter-spacing: -0.01em; }
-  .subtitle { font-size: 24px; color: ${MUTED}; margin-top: 12px; }
-  .diagram { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; margin-top: 28px; }
-  .diagram svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+  .cover svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
 </style></head><body>
-  <div class="cover">
-    <div class="eyebrow">Event Sourcing · CQRS · .NET</div>
-    <div class="title">WagerLedger</div>
-    <div class="subtitle">An event-sourced player wallet and betting ledger.</div>
-    <div class="diagram">${diagramSvg}</div>
-  </div>
+  <div class="cover">${diagramSvg}</div>
 </body></html>`;
 
 const browser = await chromium.launch();
