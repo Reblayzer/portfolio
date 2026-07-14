@@ -48,10 +48,10 @@ export const projectCards: ProjectCard[] = [
   {
     title: "Azure Secure Landing Zone",
     summary:
-      "A reproducible secure Azure landing zone defined in Terraform: hub-and-spoke networking with Azure Firewall, an Entra ID identity baseline, and an Intune endpoint baseline.",
+      "A reproducible secure Azure landing zone defined in Terraform. The networking layer is built and validating in CI: hub-and-spoke VNets with Azure Firewall, a VPN gateway, and forced-tunnel egress. Entra ID identity and Intune endpoint baselines are in progress.",
     stack: ["Azure", "Terraform", "Azure Firewall", "Entra ID", "Intune"],
     category: "cloud-devops",
-    links: {},
+    links: { repo: "https://github.com/Reblayzer/azure-secure-landing-zone" },
   },
   {
     title: "BunkerFlow",
