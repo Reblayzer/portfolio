@@ -1,0 +1,38 @@
+---
+title: "BrandLens"
+slug: "brandlens"
+summary: "A brand-visibility tracker that fans category prompts across OpenAI, Anthropic, and Perplexity, then scores how often and how favourably a brand is mentioned versus its competitors, per model."
+stack: ["TypeScript", "Node.js", "React", "OpenAI", "Anthropic", "Perplexity", "Vitest"]
+role: "Full-stack engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/brandlens" }
+cover: "/projects/brandlens/cover.png"
+flagship: true
+category: "ai-llm"
+featured: true
+impact: "Sends the same buyer-intent prompts to several LLMs and turns their answers into a per-model visibility score for a brand against its competitors, with the raw citations behind every number."
+---
+
+## The problem
+
+People are starting to shop by asking an assistant instead of a search engine: "what are the best design tools right now?" The model names a handful of brands, and that list is becoming a channel companies care about, except most have no idea how they show up in it or how they stack up against competitors. I wanted to turn that vague worry into a number you can actually look at. BrandLens is a scoped slice of that idea, built solo and presented honestly as a portfolio project rather than a product.
+
+## Approach
+
+You give it a brand, a few competitors, and a set of category prompts. It sends every prompt to each enabled model, reads the answers for who got mentioned, how early, and in what tone, and rolls that into a visibility score per model plus an overall average. The design goal was for every number to be traceable: the dashboard shows the raw model answers with each mention highlighted, so a score is never a black box you have to trust.
+
+## Architecture
+
+- **Provider layer (TypeScript / Node.js):** one `Provider` interface with `OpenAIProvider`, `AnthropicProvider`, and `PerplexityProvider` behind it (the official SDKs; Perplexity through its OpenAI-compatible endpoint). Adding a model, Gemini included, is one new class and nothing else changes.
+- **Fan-out engine:** every prompt is sent to every enabled model concurrently, with a per-call timeout, retry with exponential back-off, and a small in-memory cache so the same prompt is not re-billed within a run. A missing API key just skips that provider, so it runs with whatever keys you have.
+- **Scoring module:** a pure, deterministic function that measures presence (how many prompts mention the brand at all), share of voice (its mentions against everyone's), average rank (how early it appears), and a naive sentiment read of the text around each mention, then blends them into a 0 to 100 score with weights that live in one place and are easy to tune.
+- **API (Express):** `POST /api/scans` runs a scan and stores it; `GET /api/scans/:id` reads it back. The in-memory store sits behind an interface so a real database can drop in later.
+- **Dashboard (React / Vite):** enter the brand, competitors, and prompts, then read a score card per model, a competitor share-of-voice comparison, and the raw answers with mentions highlighted.
+
+## How I built it
+
+npm workspaces split it into a shared types package, the server, and the web app, so the API and the dashboard agree on the shape of a scan at compile time. The scoring, fan-out, and API are covered by Vitest, with the provider calls mocked so the tests and the CI run need no API keys. Every push runs GitHub Actions (lint, typecheck, tests, and the web build). I built it with Claude Code directing the work, reviewing each slice before it landed.
+
+## What I'd do differently
+
+The scoring is deliberately simple string matching on whole words, not an NLP model: it is a strong, explainable first pass, but messier phrasing (a brand referred to indirectly, or by a sub-product) would benefit from an LLM-assisted extraction step, which is the natural next layer. There is no persistence beyond memory yet and no auth, both isolated so they can be added without touching the core, and scheduled re-scans with alerting when visibility drops are named in the README as where this goes next rather than built.
