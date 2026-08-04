@@ -1,0 +1,56 @@
+---
+title: "Fjordstay"
+slug: "fjordstay"
+summary: "A booking platform for premium Nordic holiday homes: a server-rendered guest and host app on a typed GraphQL API over PostgreSQL, with an agent that drafts listing copy and metrics that measure the product rather than the process."
+stack:
+  ["Next.js", "TypeScript", "React", "GraphQL", "PostgreSQL", "Prisma", "Terraform", "Prometheus"]
+role: "Full-stack (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/fjordstay" }
+cover: "/projects/fjordstay/cover.png"
+flagship: true
+category: "frontend"
+featured: true
+impact: "Two simultaneous requests for the same nights end with one booking and one guest told the dates just went, enforced by the database rather than by the resolver. The whole guest flow works with JavaScript disabled."
+---
+
+## The problem
+
+A booking site looks like CRUD and is not. The moment two people want the same week, availability stops being a field you read and becomes a race you have to lose safely. Everything else on the surface — search, a calendar, a price — is the easy half.
+
+I wanted a build where the interesting decisions were forced rather than invented: real dates with real timezone traps, real money that must not drift, and a write-heavy path where being wrong is visible to a guest. Holiday homes give you all three, plus a second user with an entirely different job to do.
+
+## Approach
+
+Availability is derived, never stored. A night is free unless a host blackout or a live booking covers it, so there is one source of truth and "why is this date taken?" has an answer instead of a guess about which table drifted.
+
+Every range in the system is half-open — `[check-in, check-out)` — which is what lets one guest arrive on the day another leaves. That single convention decides whether every changeover day in the calendar is bookable or silently lost, so it is asserted in both directions in the tests.
+
+Dates are calendar dates, not instants. A guest arriving on the 4th arrives on the 4th whether the server runs in Copenhagen or a UTC container, so every date is UTC midnight and all arithmetic goes through one module. Money is integer øre end to end, formatted once on the server so every client agrees and no float ever reaches a total.
+
+## Architecture
+
+<Architecture
+  src="/projects/fjordstay/architecture.svg"
+  caption="One Compose stack: the app, Postgres with the overlap constraint, the photo bucket, and the Prometheus/Grafana pair. Terraform provisions the database roles and the bucket from outside it."
+/>
+
+- **Guest side, server-rendered.** Search filters and the booking panel are plain GET forms, so the URL holds the state: a result page is shareable, the back button behaves, and the price on screen is always the one the server just calculated. There is no client-side copy of the pricing rules to drift out of step, and the whole flow works with JavaScript off. One client component in the guest path, for pending state on the request form.
+- **The API is a real boundary.** Pothos builds a code-first schema over Prisma; server components fetch it over HTTP rather than importing it, so the queries the pages run are the ones an external client would run.
+- **Pricing is per-night, shown per-segment.** A stay crossing into high summer returns both rates rather than a blended average, and the quote is frozen onto the booking when it is made, so a later price change never rewrites what a guest was promised.
+- **Least privilege in the database.** Terraform provisions two roles: one that owns the schema and runs migrations, and the one the application actually connects as, which may read and write rows and nothing else. `DROP TABLE` as the runtime role returns `must be owner`.
+- **The listing agent drafts, the host edits.** A host types how they would describe the place; the agent returns copy in the platform's house style and fills the form. It writes nothing, and without an API key it falls back to a deterministic local composer and says so.
+
+## How I built it
+
+The double-booking race is the part worth reading. Checking availability and then inserting is a read-then-write race that no amount of care in a resolver closes — under concurrency both requests read "free" before either writes. So the rule lives in Postgres as a GiST exclusion constraint over `(listing, daterange)` for live statuses, which makes overlapping bookings physically unrepresentable. The second insert fails, and the API turns that failure into a sentence a guest can act on. A test fires both requests concurrently and asserts exactly one booking exists.
+
+The house style for listing copy is one file used twice: it goes into the model's prompt, and the same rules are then run against what comes back. Banned phrases, length, paragraph count — checked mechanically, with the failures shown to the host rather than swallowed. A style guide that only lives inside a prompt is one nobody can enforce.
+
+Three bugs were only visible from outside the code. A root `loading.tsx` made every route stream, and once a response starts streaming Next cannot go back and set a 404 — so every not-found page was answering `200` until I checked the status code rather than the rendered page. The Vitest config was missing an alias for `server-only`, so the integration suite was collecting zero tests while reporting green; the fix was two lines, but the reason to look was a test count that had quietly dropped by ten. And the filters toggle rendered as an empty box for anyone without a CJK font, because the marker was a fullwidth plus (`U+FF0B`) rather than an ASCII one — which I only noticed because headless Chrome has no CJK font either, and it turned up in the screenshot I was taking for this page.
+
+## What I'd do differently
+
+The response types the pages use are hand-written. The schema is generated from Prisma through Pothos, so a drift between them surfaces as a runtime null rather than a build error — the honest fix is codegen, and it is the first thing I would add.
+
+Authentication is the deliberate gap. The host dashboard picks who it is acting as and stores the id in an httpOnly cookie; what matters is that the server never trusts a host id from the client, so the GraphQL context reads the cookie and every mutation re-checks ownership against it. Real auth replaces one helper, not the authorisation model. Payments are mocked entirely: a booking request is a request, and nothing is charged.
