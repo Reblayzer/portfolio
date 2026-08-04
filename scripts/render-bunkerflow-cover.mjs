@@ -88,17 +88,19 @@ function edge(points, { accent = false, label, lx, ly } = {}) {
 // adapters and the one pipeline they all converge on), the bus, and the
 // landing stores. That convergence is the architectural argument, so it sits
 // in the middle and is the only filled shape.
-const COL_SRC = 320;
-const COL_ADAPT = 860;
-const COL_PIPE = 1440;
-const COL_BUS = 1980;
-const COL_LAND = 2490;
+// Kept as narrow as the content allows: the cover scales the whole drawing to
+// fit 16:9, so every unit of width costs type size in the rendered PNG.
+const COL_SRC = 270;
+const COL_ADAPT = 740;
+const COL_PIPE = 1310;
+const COL_BUS = 1870;
+const COL_LAND = 2340;
 
-const SRC_W = 400, SRC_H = 118;
-const ADAPT_W = 330, ADAPT_H = 110;
-const PIPE_W = 440, PIPE_H = 210;
-const BUS_W = 320, BUS_H = 136;
-const DB_W = 195, DB_H = 186;
+const SRC_W = 380, SRC_H = 118;
+const ADAPT_W = 320, ADAPT_H = 110;
+const PIPE_W = 420, PIPE_H = 210;
+const BUS_W = 300, BUS_H = 136;
+const DB_W = 180, DB_H = 186;
 
 // Group boxes
 const BOX_TOP = 200;
@@ -126,10 +128,10 @@ const Y_DBX = 1190;
 const parts = [];
 
 // Group containers
-parts.push(groupBox(90, BOX_TOP, 460, BOX_H, "Source systems (simulated)"));
-parts.push(groupBox(660, BOX_TOP, 1040, BOX_H, "Ingestion gateway"));
-parts.push(groupBox(1790, BOX_TOP, 380, BOX_H, "Azure Service Bus"));
-parts.push(groupBox(2250, BOX_TOP, 480, BOX_H, "Landing"));
+parts.push(groupBox(60, BOX_TOP, 420, BOX_H, "Source systems (simulated)"));
+parts.push(groupBox(540, BOX_TOP, 1040, BOX_H, "Ingestion gateway"));
+parts.push(groupBox(1690, BOX_TOP, 360, BOX_H, "Azure Service Bus"));
+parts.push(groupBox(2130, BOX_TOP, 420, BOX_H, "Landing"));
 
 // ---- edges (drawn under the nodes) ----
 const srcR = COL_SRC + SRC_W / 2;
@@ -156,11 +158,11 @@ parts.push(edge([[pipeR, Y_PIPE - 40], [busL - 45, Y_PIPE - 40], [busL - 45, Y_T
 parts.push(edge([[pipeR, Y_PIPE + 50], [busL - 45, Y_PIPE + 50], [busL - 45, Y_DLQ], [busL, Y_DLQ]], { label: "rejected", lx: pipeR + 55, ly: Y_PIPE + 26 }));
 
 // topic -> landing worker
-parts.push(edge([[COL_BUS + BUS_W / 2, Y_TOPIC], [COL_LAND - 165, Y_TOPIC]], { accent: true }));
+parts.push(edge([[COL_BUS + BUS_W / 2, Y_TOPIC], [COL_LAND - 160, Y_TOPIC]], { accent: true }));
 
 // landing worker -> the two stores
-const PG_X = COL_LAND - 118;
-const PARQUET_X = COL_LAND + 118;
+const PG_X = COL_LAND - 105;
+const PARQUET_X = COL_LAND + 105;
 parts.push(edge([[PG_X, Y_LANDWORKER + 55], [PG_X, Y_STORES - DB_H / 2]]));
 parts.push(edge([[PARQUET_X, Y_LANDWORKER + 55], [PARQUET_X, Y_STORES - DB_H / 2]]));
 
@@ -168,33 +170,33 @@ parts.push(edge([[PARQUET_X, Y_LANDWORKER + 55], [PARQUET_X, Y_STORES - DB_H / 2
 parts.push(edge([[PARQUET_X, Y_STORES + DB_H / 2], [PARQUET_X, Y_DBX - 130], [COL_LAND, Y_DBX - 130], [COL_LAND, Y_DBX - 55]]));
 
 // ---- nodes ----
-parts.push(rrect(COL_SRC, Y_DESK, SRC_W, SRC_H, "Trading desk\nREST, camelCase", { size: 21 }));
-parts.push(rrect(COL_SRC, Y_ERP, SRC_W, SRC_H, "ERP\nREST, snake_case", { size: 21 }));
-parts.push(rrect(COL_SRC, Y_TELEMETRY, SRC_W, SRC_H, "Port telemetry\nKafka topic", { size: 21 }));
-parts.push(rrect(COL_SRC, Y_PUSH, SRC_W, SRC_H, "Any system\nPOST /ingest", { size: 21 }));
+parts.push(rrect(COL_SRC, Y_DESK, SRC_W, SRC_H, "Trading desk\nREST, camelCase", { size: 24 }));
+parts.push(rrect(COL_SRC, Y_ERP, SRC_W, SRC_H, "ERP\nREST, snake_case", { size: 24 }));
+parts.push(rrect(COL_SRC, Y_TELEMETRY, SRC_W, SRC_H, "Port telemetry\nKafka topic", { size: 24 }));
+parts.push(rrect(COL_SRC, Y_PUSH, SRC_W, SRC_H, "Any system\nPOST /ingest", { size: 24 }));
 
-parts.push(rrect(COL_ADAPT, Y_BATCH, ADAPT_W, ADAPT_H, "Batch puller\nscheduled", { size: 21 }));
-parts.push(rrect(COL_ADAPT, Y_KAFKA, ADAPT_W, ADAPT_H, "Kafka consumer", { size: 21 }));
-parts.push(rrect(COL_ADAPT, Y_API, ADAPT_W, ADAPT_H, "REST gateway", { size: 21 }));
+parts.push(rrect(COL_ADAPT, Y_BATCH, ADAPT_W, ADAPT_H, "Batch puller\nscheduled", { size: 24 }));
+parts.push(rrect(COL_ADAPT, Y_KAFKA, ADAPT_W, ADAPT_H, "Kafka consumer", { size: 24 }));
+parts.push(rrect(COL_ADAPT, Y_API, ADAPT_W, ADAPT_H, "REST gateway", { size: 24 }));
 
 parts.push(rrect(COL_PIPE, Y_PIPE, PIPE_W, PIPE_H, "Ingestion pipeline\n\nnormalize · validate\ndedupe · publish", {
-  fill: ACCENT, stroke: ACCENT, tcolor: WHITE, size: 22,
+  fill: ACCENT, stroke: ACCENT, tcolor: WHITE, size: 25,
 }));
 
-parts.push(queue(COL_BUS, Y_TOPIC, BUS_W, BUS_H, "Topic", { stroke: ACCENT, size: 23 }));
-parts.push(queue(COL_BUS, Y_DLQ, BUS_W, BUS_H, "Dead letter", { size: 21 }));
+parts.push(queue(COL_BUS, Y_TOPIC, BUS_W, BUS_H, "Topic", { stroke: ACCENT, size: 26 }));
+parts.push(queue(COL_BUS, Y_DLQ, BUS_W, BUS_H, "Dead letter", { size: 24 }));
 
-parts.push(rrect(COL_LAND, Y_LANDWORKER, 340, 110, "Landing worker", { size: 21 }));
-parts.push(cylinder(PG_X, Y_STORES, DB_W, DB_H, "Postgres", { size: 21 }));
-parts.push(cylinder(PARQUET_X, Y_STORES, DB_W, DB_H, "Parquet", { size: 21 }));
-parts.push(rrect(COL_LAND, Y_DBX, 340, 110, "Databricks\nDelta tables", { size: 21 }));
+parts.push(rrect(COL_LAND, Y_LANDWORKER, 320, 110, "Landing worker", { size: 24 }));
+parts.push(cylinder(PG_X, Y_STORES, DB_W, DB_H, "Postgres", { size: 24 }));
+parts.push(cylinder(PARQUET_X, Y_STORES, DB_W, DB_H, "Parquet", { size: 24 }));
+parts.push(rrect(COL_LAND, Y_DBX, 320, 110, "Databricks\nDelta tables", { size: 24 }));
 
 // The canvas hugs the drawing: content runs from BOX_TOP to BOX_TOP + BOX_H,
 // so it is shifted up to leave an even margin instead of a band of dead space
 // top and bottom once the cover scales it to fit.
 const MARGIN = 70;
 const SHIFT = BOX_TOP - MARGIN;
-const W = 2820;
+const W = 2610;
 const H = BOX_H + MARGIN * 2;
 const diagramSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <defs>
@@ -225,7 +227,10 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 
 const browser = await chromium.launch();
 try {
-  const page = await browser.newPage({ viewport: { width: COVER_W, height: COVER_H }, deviceScaleFactor: 2 });
+  // 3x rather than 2x: this diagram is wider than the others, so it scales
+  // down further to fit and its type needs the extra device pixels to stay
+  // crisp on a high-DPI screen.
+  const page = await browser.newPage({ viewport: { width: COVER_W, height: COVER_H }, deviceScaleFactor: 3 });
   await page.setContent(html, { waitUntil: "networkidle" });
   const cover = await page.$(".cover");
   await cover.screenshot({ path: path.join(outDir, "cover.png") });
