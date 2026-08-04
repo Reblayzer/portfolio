@@ -1,0 +1,47 @@
+---
+title: "BunkerFlow"
+slug: "bunkerflow"
+summary: "An event-driven integration gateway for bunker fuel trade data: scheduled batch pulls and Kafka streams normalized onto one event contract, routed through Azure Service Bus, and landed in a lakehouse store behind a REST API."
+stack: [".NET 10", "Azure Service Bus", "Kafka", "Terraform", "Databricks", "PostgreSQL"]
+role: "Integration engineer (solo build)"
+year: 2026
+links: { repo: "https://github.com/Reblayzer/bunkerflow" }
+flagship: true
+category: "data-eng"
+featured: true
+impact: "Three ingestion channels feed one pipeline. Verified against real Azure: the broker discards replayed trades, the subscription filter withholds unsupported schema versions, and send, listen and dead-letter each run on their own credential."
+---
+
+## The problem
+
+Integration work usually gets bolted onto a platform that already exists. I wanted to build the other case: the integration layer of a unified data platform, designed before anything had calcified, and small enough to run on one machine.
+
+The domain is bunker fuel trading. Trades arrive from a trading desk, from an ERP, and from port telemetry, and every one of those systems disagrees about field names, decimal separators and timestamp offsets. The interesting problem is not moving the bytes; it is making three sources indistinguishable to everything downstream.
+
+## Approach
+
+One pipeline, three thin adapters. A scheduled REST puller, a Kafka consumer and a push API all call the same code path: normalize, validate, claim the business key, publish. Adding a fourth source is an adapter and a few field aliases, not a new branch through the system.
+
+Source systems disagree about names, so each target field resolves through a list of accepted aliases; the trading desk's `tradeReference` and the ERP's `deal_id` land in the same column. Data quality is enforced before anything is published, including IMO check-digit arithmetic, which catches the transposed digits that are the common typo in a vessel number.
+
+## Architecture
+
+- **Gateway and worker (.NET 10):** a minimal API for push ingestion and querying, and a worker running the batch pullers, the Kafka consumer and the Service Bus landing consumer. Both expose health and Prometheus metrics broken out by outcome and ingestion channel, so a stalled batch puller is visible while the streaming path keeps working.
+- **Idempotency:** the business key is reserved before publishing and released again if the publish fails. Marking a key as seen up front is the obvious implementation and it silently loses records, because the retry then looks like a duplicate. A test is named after that exact scenario.
+- **Messaging:** the event id is derived from source system plus source record id, so a replayed record produces the same Service Bus `MessageId` and the broker rejects it before any consumer is involved. The subscription carries a SQL filter on schema version, so a future contract version gets its own consumer instead of corrupting this one.
+- **Landing:** Postgres for the query API, date-partitioned Parquet for the lakehouse. A Databricks notebook reads that output into bronze, silver and gold Delta tables.
+- **Infrastructure as code:** Terraform provisions the namespace, topic, subscription, filter rule, dead-letter queue and the authorization rules, with separate send, listen and dead-letter credentials.
+
+## How I built it
+
+Every push runs build, the unit suite, `terraform fmt` and `validate`, both container images, and a broker-backed suite that starts a real Redpanda through Testcontainers.
+
+That last one exists because of a bug I could not have caught otherwise. Running the full stack, the Service Bus emulator was still booting when a streamed record arrived, the publish failed after retries, and the offset had already been committed. The trade would have disappeared during exactly the outage the retry policy exists for. The consumer now seeks back and leaves the offset uncommitted, and the rule is pinned by a test that reads the committed offset back from a real broker.
+
+I also applied the Terraform to a real Azure subscription rather than trusting `validate`, which was the most useful hour of the build. The least-privilege authorization rules turned out to be decorative: the application used one connection string for publishing, consuming and dead-lettering, so the send-only credential could not receive, and because per-entity rules produce entity-scoped connection strings it could not address the dead-letter queue either. The local emulator was happy with a single credential and had hidden all of it. With three credentials in place I tested the two features that had only ever existed in HCL, and both held: the broker discarded a replayed message id, and the subscription filter passed schema version 1 while withholding version 2.
+
+## What I'd do differently
+
+The source systems are simulated, and the Databricks notebook reads a committed sample rather than a live feed. Pointing the landing writer at cloud object storage would close that: the format and partitioning are already what a lakehouse expects, so it is a configuration change rather than a rewrite.
+
+Authentication is the honest weak spot. The API takes a shared key, compared in constant time and rotatable, but a shared key cannot tell two source systems apart. Service Bus uses SAS split by role, which is a legitimate production pattern, though managed identity is better and is blocked only by the workloads running locally: a container on a laptop has no identity to assign. The Terraform already exposes `local_auth_enabled` for the day that changes.

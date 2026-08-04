@@ -54,14 +54,6 @@ export const projectCards: ProjectCard[] = [
     links: { repo: "https://github.com/Reblayzer/azure-secure-landing-zone" },
   },
   {
-    title: "BunkerFlow",
-    summary:
-      "An event-driven integration gateway that ingests batch and Kafka data, routes it through Azure Service Bus, normalizes it, and lands it in a lakehouse store over a REST API.",
-    stack: [".NET 8", "Azure Service Bus", "Kafka", "Terraform", "PostgreSQL"],
-    category: "backend",
-    links: {},
-  },
-  {
     title: "BunkerStream",
     summary:
       "A medallion-architecture ingestion platform that lands REST, flat-file, and Kafka sources into layered bronze/silver/gold Delta Lake tables, gated by CI data-quality checks.",
