@@ -79,9 +79,7 @@ async function main() {
    * that and is lossless; a palette would be smaller still but quantising to
    * 256 colours visibly bands the photography, which is the whole subject.
    */
-  await sharp(shot)
-    .png({ compressionLevel: 9, adaptiveFiltering: true, effort: 10 })
-    .toFile(out);
+  await sharp(shot).png({ compressionLevel: 9, adaptiveFiltering: true, effort: 10 }).toFile(out);
 
   const { size } = await fs.stat(out);
   console.log(

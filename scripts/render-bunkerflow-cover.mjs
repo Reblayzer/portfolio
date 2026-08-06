@@ -29,7 +29,14 @@ function nodeLabel(cx, cy, text, { color = INK, size = 23, weight = 700 } = {}) 
   return `<text font-family='${MONO}' font-size="${size}" font-weight="${weight}" fill="${color}" text-anchor="middle" dominant-baseline="central">${spans}</text>`;
 }
 
-function rrect(cx, cy, w, h, label, { fill = WHITE, stroke = INK, tcolor = INK, sw = 2.5, r = 12, size = 23 } = {}) {
+function rrect(
+  cx,
+  cy,
+  w,
+  h,
+  label,
+  { fill = WHITE, stroke = INK, tcolor = INK, sw = 2.5, r = 12, size = 23 } = {},
+) {
   const x = cx - w / 2;
   const y = cy - h / 2;
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>${nodeLabel(cx, cy, label, { color: tcolor, size })}`;
@@ -96,11 +103,16 @@ const COL_PIPE = 1310;
 const COL_BUS = 1870;
 const COL_LAND = 2340;
 
-const SRC_W = 380, SRC_H = 118;
-const ADAPT_W = 320, ADAPT_H = 110;
-const PIPE_W = 420, PIPE_H = 210;
-const BUS_W = 300, BUS_H = 136;
-const DB_W = 180, DB_H = 186;
+const SRC_W = 380,
+  SRC_H = 118;
+const ADAPT_W = 320,
+  ADAPT_H = 110;
+const PIPE_W = 420,
+  PIPE_H = 210;
+const BUS_W = 300,
+  BUS_H = 136;
+const DB_W = 180,
+  DB_H = 186;
 
 // Group boxes
 const BOX_TOP = 200;
@@ -142,32 +154,131 @@ const pipeR = COL_PIPE + PIPE_W / 2;
 const busL = COL_BUS - BUS_W / 2;
 
 // sources -> adapters
-parts.push(edge([[srcR, Y_DESK], [adaptL - 60, Y_DESK], [adaptL - 60, Y_BATCH - 26], [adaptL, Y_BATCH - 26]]));
-parts.push(edge([[srcR, Y_ERP], [adaptL - 60, Y_ERP], [adaptL - 60, Y_BATCH + 26], [adaptL, Y_BATCH + 26]]));
-parts.push(edge([[srcR, Y_TELEMETRY], [adaptL, Y_TELEMETRY]]));
-parts.push(edge([[srcR, Y_PUSH], [adaptL, Y_PUSH]]));
+parts.push(
+  edge([
+    [srcR, Y_DESK],
+    [adaptL - 60, Y_DESK],
+    [adaptL - 60, Y_BATCH - 26],
+    [adaptL, Y_BATCH - 26],
+  ]),
+);
+parts.push(
+  edge([
+    [srcR, Y_ERP],
+    [adaptL - 60, Y_ERP],
+    [adaptL - 60, Y_BATCH + 26],
+    [adaptL, Y_BATCH + 26],
+  ]),
+);
+parts.push(
+  edge([
+    [srcR, Y_TELEMETRY],
+    [adaptL, Y_TELEMETRY],
+  ]),
+);
+parts.push(
+  edge([
+    [srcR, Y_PUSH],
+    [adaptL, Y_PUSH],
+  ]),
+);
 
 // adapters -> the one pipeline
 // Labels sit on the horizontal run before the bend, never over it.
-parts.push(edge([[adaptR, Y_BATCH], [pipeL - 70, Y_BATCH], [pipeL - 70, Y_PIPE - 48], [pipeL, Y_PIPE - 48]], { accent: true, label: "batch", lx: adaptR + 62, ly: Y_BATCH - 24 }));
-parts.push(edge([[adaptR, Y_KAFKA], [pipeL - 70, Y_KAFKA], [pipeL - 70, Y_PIPE + 12], [pipeL, Y_PIPE + 12]], { accent: true, label: "stream", lx: adaptR + 62, ly: Y_KAFKA - 24 }));
-parts.push(edge([[adaptR, Y_API], [pipeL - 70, Y_API], [pipeL - 70, Y_PIPE + 62], [pipeL, Y_PIPE + 62]], { accent: true, label: "push", lx: adaptR + 62, ly: Y_API - 24 }));
+parts.push(
+  edge(
+    [
+      [adaptR, Y_BATCH],
+      [pipeL - 70, Y_BATCH],
+      [pipeL - 70, Y_PIPE - 48],
+      [pipeL, Y_PIPE - 48],
+    ],
+    { accent: true, label: "batch", lx: adaptR + 62, ly: Y_BATCH - 24 },
+  ),
+);
+parts.push(
+  edge(
+    [
+      [adaptR, Y_KAFKA],
+      [pipeL - 70, Y_KAFKA],
+      [pipeL - 70, Y_PIPE + 12],
+      [pipeL, Y_PIPE + 12],
+    ],
+    { accent: true, label: "stream", lx: adaptR + 62, ly: Y_KAFKA - 24 },
+  ),
+);
+parts.push(
+  edge(
+    [
+      [adaptR, Y_API],
+      [pipeL - 70, Y_API],
+      [pipeL - 70, Y_PIPE + 62],
+      [pipeL, Y_PIPE + 62],
+    ],
+    { accent: true, label: "push", lx: adaptR + 62, ly: Y_API - 24 },
+  ),
+);
 
 // pipeline -> bus
-parts.push(edge([[pipeR, Y_PIPE - 40], [busL - 45, Y_PIPE - 40], [busL - 45, Y_TOPIC], [busL, Y_TOPIC]], { accent: true, label: "accepted", lx: pipeR + 55, ly: Y_PIPE - 64 }));
-parts.push(edge([[pipeR, Y_PIPE + 50], [busL - 45, Y_PIPE + 50], [busL - 45, Y_DLQ], [busL, Y_DLQ]], { label: "rejected", lx: pipeR + 55, ly: Y_PIPE + 26 }));
+parts.push(
+  edge(
+    [
+      [pipeR, Y_PIPE - 40],
+      [busL - 45, Y_PIPE - 40],
+      [busL - 45, Y_TOPIC],
+      [busL, Y_TOPIC],
+    ],
+    { accent: true, label: "accepted", lx: pipeR + 55, ly: Y_PIPE - 64 },
+  ),
+);
+parts.push(
+  edge(
+    [
+      [pipeR, Y_PIPE + 50],
+      [busL - 45, Y_PIPE + 50],
+      [busL - 45, Y_DLQ],
+      [busL, Y_DLQ],
+    ],
+    { label: "rejected", lx: pipeR + 55, ly: Y_PIPE + 26 },
+  ),
+);
 
 // topic -> landing worker
-parts.push(edge([[COL_BUS + BUS_W / 2, Y_TOPIC], [COL_LAND - 160, Y_TOPIC]], { accent: true }));
+parts.push(
+  edge(
+    [
+      [COL_BUS + BUS_W / 2, Y_TOPIC],
+      [COL_LAND - 160, Y_TOPIC],
+    ],
+    { accent: true },
+  ),
+);
 
 // landing worker -> the two stores
 const PG_X = COL_LAND - 105;
 const PARQUET_X = COL_LAND + 105;
-parts.push(edge([[PG_X, Y_LANDWORKER + 55], [PG_X, Y_STORES - DB_H / 2]]));
-parts.push(edge([[PARQUET_X, Y_LANDWORKER + 55], [PARQUET_X, Y_STORES - DB_H / 2]]));
+parts.push(
+  edge([
+    [PG_X, Y_LANDWORKER + 55],
+    [PG_X, Y_STORES - DB_H / 2],
+  ]),
+);
+parts.push(
+  edge([
+    [PARQUET_X, Y_LANDWORKER + 55],
+    [PARQUET_X, Y_STORES - DB_H / 2],
+  ]),
+);
 
 // parquet -> databricks
-parts.push(edge([[PARQUET_X, Y_STORES + DB_H / 2], [PARQUET_X, Y_DBX - 130], [COL_LAND, Y_DBX - 130], [COL_LAND, Y_DBX - 55]]));
+parts.push(
+  edge([
+    [PARQUET_X, Y_STORES + DB_H / 2],
+    [PARQUET_X, Y_DBX - 130],
+    [COL_LAND, Y_DBX - 130],
+    [COL_LAND, Y_DBX - 55],
+  ]),
+);
 
 // ---- nodes ----
 parts.push(rrect(COL_SRC, Y_DESK, SRC_W, SRC_H, "Trading desk\nREST, camelCase", { size: 24 }));
@@ -179,9 +290,21 @@ parts.push(rrect(COL_ADAPT, Y_BATCH, ADAPT_W, ADAPT_H, "Batch puller\nscheduled"
 parts.push(rrect(COL_ADAPT, Y_KAFKA, ADAPT_W, ADAPT_H, "Kafka consumer", { size: 24 }));
 parts.push(rrect(COL_ADAPT, Y_API, ADAPT_W, ADAPT_H, "REST gateway", { size: 24 }));
 
-parts.push(rrect(COL_PIPE, Y_PIPE, PIPE_W, PIPE_H, "Ingestion pipeline\n\nnormalize · validate\ndedupe · publish", {
-  fill: ACCENT, stroke: ACCENT, tcolor: WHITE, size: 25,
-}));
+parts.push(
+  rrect(
+    COL_PIPE,
+    Y_PIPE,
+    PIPE_W,
+    PIPE_H,
+    "Ingestion pipeline\n\nnormalize · validate\ndedupe · publish",
+    {
+      fill: ACCENT,
+      stroke: ACCENT,
+      tcolor: WHITE,
+      size: 25,
+    },
+  ),
+);
 
 parts.push(queue(COL_BUS, Y_TOPIC, BUS_W, BUS_H, "Topic", { stroke: ACCENT, size: 26 }));
 parts.push(queue(COL_BUS, Y_DLQ, BUS_W, BUS_H, "Dead letter", { size: 24 }));
@@ -230,7 +353,10 @@ try {
   // 3x rather than 2x: this diagram is wider than the others, so it scales
   // down further to fit and its type needs the extra device pixels to stay
   // crisp on a high-DPI screen.
-  const page = await browser.newPage({ viewport: { width: COVER_W, height: COVER_H }, deviceScaleFactor: 3 });
+  const page = await browser.newPage({
+    viewport: { width: COVER_W, height: COVER_H },
+    deviceScaleFactor: 3,
+  });
   await page.setContent(html, { waitUntil: "networkidle" });
   const cover = await page.$(".cover");
   await cover.screenshot({ path: path.join(outDir, "cover.png") });
