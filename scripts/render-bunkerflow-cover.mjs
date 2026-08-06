@@ -1,343 +1,207 @@
+// Renders the BunkerFlow architecture diagram, and the 16:9 cover PNG built
+// from it. (The file is named for the cover for historical reasons; it writes
+// both, the same way scripts/render-diagram.mjs does for WagerLedger.)
+//
+//   node scripts/render-bunkerflow-cover.mjs
+//
+// Shapes, palette and the two layout rules live in scripts/lib/diagram.mjs.
+// Nine of this diagram's thirteen edges used to be elbows, almost all of them
+// fan-in: four sources into three adapters, three adapters into one pipeline.
+// Fan-in does not actually need corners — a diagonal is still a single
+// straight line — so the elbows are gone and nothing crosses.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
+import {
+  ACCENT,
+  LIGHT_VARS,
+  ON_ACCENT,
+  bottom,
+  cylinder,
+  document,
+  edge,
+  groupBox,
+  midLabel,
+  left,
+  queue,
+  right,
+  rrect,
+  top,
+} from "./lib/diagram.mjs";
 
 const root = process.cwd();
 const slug = "bunkerflow";
 const outDir = path.join(root, "public", "projects", slug);
 
-// ---- palette (matches the site) ----
-const INK = "#0a0a0a";
-const MUTED = "#52525b";
-const LINE = "#71717a";
-const ACCENT = "#2563eb";
-const BORDER = "#e5e7eb";
-const GROUP = "#fafafa";
-const WHITE = "#ffffff";
-const MONO = `ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace`;
+/* ---- layout ----------------------------------------------------------------
+ * Left to right, one band per boundary:
+ *
+ *   sources ——→ adapters ——→ pipeline ——→ service bus ——→ landing
+ *
+ * The three adapters converge on a single pipeline, which is the whole point of
+ * the design, so the three edges into it are drawn as straight diagonals
+ * meeting the same left edge at three different heights. They stay in order
+ * along both ends, which is what keeps them from crossing.
+ *
+ * Databricks sits under Parquet rather than centred in the landing band,
+ * because that is what it actually reads.
+ * -------------------------------------------------------------------------- */
 
-// ---- shape helpers ----
-const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const COL_SRC = 300;
+const COL_ADAPT = 1000;
+const COL_PIPE = 1700;
+const COL_BUS = 2350;
 
-function nodeLabel(cx, cy, text, { color = INK, size = 23, weight = 700 } = {}) {
-  const lines = String(text).split("\n");
-  const lh = size * 1.15;
-  const start = cy - ((lines.length - 1) * lh) / 2;
-  const spans = lines
-    .map((ln, i) => `<tspan x="${cx}" y="${start + i * lh}">${esc(ln)}</tspan>`)
-    .join("");
-  return `<text font-family='${MONO}' font-size="${size}" font-weight="${weight}" fill="${color}" text-anchor="middle" dominant-baseline="central">${spans}</text>`;
-}
+const Y_DESK = 300;
+const Y_ERP = 620;
+const Y_TELEMETRY = 940;
+const Y_PUSH = 1260;
 
-function rrect(
-  cx,
-  cy,
-  w,
-  h,
-  label,
-  { fill = WHITE, stroke = INK, tcolor = INK, sw = 2.5, r = 12, size = 23 } = {},
-) {
-  const x = cx - w / 2;
-  const y = cy - h / 2;
-  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>${nodeLabel(cx, cy, label, { color: tcolor, size })}`;
-}
+// The batch puller serves both REST sources, so it sits between them.
+const Y_BATCH = 460;
+const Y_KAFKA = 940;
+const Y_API = 1260;
 
-function cylinder(cx, cy, w, h, label, { stroke = ACCENT, size = 22 } = {}) {
-  const x = cx - w / 2;
-  const y = cy - h / 2;
-  const ry = w * 0.13;
-  const d = [
-    `M ${x} ${y + ry}`,
-    `A ${w / 2} ${ry} 0 0 0 ${x + w} ${y + ry}`,
-    `L ${x + w} ${y + h - ry}`,
-    `A ${w / 2} ${ry} 0 0 1 ${x} ${y + h - ry}`,
-    `Z`,
-  ].join(" ");
-  const top = `M ${x} ${y + ry} A ${w / 2} ${ry} 0 0 1 ${x + w} ${y + ry}`;
-  return `<path d="${d}" fill="${WHITE}" stroke="${stroke}" stroke-width="2.5"/><path d="${top}" fill="none" stroke="${stroke}" stroke-width="2.5"/>${nodeLabel(cx, cy + ry * 0.6, label, { color: INK, size })}`;
-}
+const Y_PIPE = 780;
+const Y_TOPIC = 460;
+const Y_DLQ = 1100;
 
-function queue(cx, cy, w, h, label, { stroke = INK, size = 22 } = {}) {
-  const x = cx - w / 2;
-  const y = cy - h / 2;
-  const rx = h * 0.16;
-  const d = [
-    `M ${x + rx} ${y}`,
-    `L ${x + w - rx} ${y}`,
-    `A ${rx} ${h / 2} 0 0 1 ${x + w - rx} ${y + h}`,
-    `L ${x + rx} ${y + h}`,
-    `A ${rx} ${h / 2} 0 0 1 ${x + rx} ${y}`,
-    `Z`,
-  ].join(" ");
-  const cap = `M ${x + w - rx} ${y} A ${rx} ${h / 2} 0 0 0 ${x + w - rx} ${y + h}`;
-  return `<path d="${d}" fill="${WHITE}" stroke="${stroke}" stroke-width="2.5"/><path d="${cap}" fill="none" stroke="${stroke}" stroke-width="2.5"/>${nodeLabel(cx - rx * 0.5, cy, label, { size })}`;
-}
+const DESK = { x: COL_SRC, y: Y_DESK, w: 380, h: 140 };
+const ERP = { x: COL_SRC, y: Y_ERP, w: 380, h: 140 };
+const TELEM = { x: COL_SRC, y: Y_TELEMETRY, w: 380, h: 140 };
+const ANY = { x: COL_SRC, y: Y_PUSH, w: 380, h: 140 };
 
-function groupBox(x, y, w, h, label) {
-  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="${GROUP}" stroke="${BORDER}" stroke-width="2"/><text x="${x + w / 2}" y="${y + 36}" font-family='${MONO}' font-size="24" fill="${MUTED}" text-anchor="middle">${esc(label)}</text>`;
-}
+const BATCH = { x: COL_ADAPT, y: Y_BATCH, w: 380, h: 140 };
+const KAFKA = { x: COL_ADAPT, y: Y_KAFKA, w: 380, h: 120 };
+const REST = { x: COL_ADAPT, y: Y_API, w: 380, h: 120 };
 
-function edge(points, { accent = false, label, lx, ly } = {}) {
-  const color = accent ? ACCENT : LINE;
-  const sw = accent ? 3.5 : 2.5;
-  const marker = accent ? "url(#arrowAccent)" : "url(#arrow)";
-  const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
-  let labelSvg = "";
-  if (label) {
-    const w = label.length * 11 + 26;
-    labelSvg = `<rect x="${lx - w / 2}" y="${ly - 19}" width="${w}" height="34" rx="6" fill="${WHITE}"/><text x="${lx}" y="${ly}" font-family='${MONO}' font-size="19" font-style="italic" fill="${MUTED}" text-anchor="middle" dominant-baseline="central">${esc(label)}</text>`;
-  }
-  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${sw}" marker-end="${marker}"/>${labelSvg}`;
-}
+const PIPE = { x: COL_PIPE, y: Y_PIPE, w: 440, h: 260 };
 
-// ---- layout ----
-// Four bands left to right: the source systems, the gateway (its three
-// adapters and the one pipeline they all converge on), the bus, and the
-// landing stores. That convergence is the architectural argument, so it sits
-// in the middle and is the only filled shape.
-// Kept as narrow as the content allows: the cover scales the whole drawing to
-// fit 16:9, so every unit of width costs type size in the rendered PNG.
-const COL_SRC = 270;
-const COL_ADAPT = 740;
-const COL_PIPE = 1310;
-const COL_BUS = 1870;
-const COL_LAND = 2340;
+const TOPIC = { x: COL_BUS, y: Y_TOPIC, w: 340, h: 150 };
+const DLQ = { x: COL_BUS, y: Y_DLQ, w: 340, h: 150 };
 
-const SRC_W = 380,
-  SRC_H = 118;
-const ADAPT_W = 320,
-  ADAPT_H = 110;
-const PIPE_W = 420,
-  PIPE_H = 210;
-const BUS_W = 300,
-  BUS_H = 136;
-const DB_W = 180,
-  DB_H = 186;
+const WORKER = { x: 2960, y: 460, w: 380, h: 130 };
+const PG = { x: 2820, y: 830, w: 240, h: 200 };
+const PARQUET = { x: 3100, y: 830, w: 240, h: 200 };
+const DBX = { x: 3100, y: 1180, w: 330, h: 130 };
 
-// Group boxes
-const BOX_TOP = 200;
-const BOX_H = 1160;
-
-// Source rows
-const Y_DESK = 350;
-const Y_ERP = 610;
-const Y_TELEMETRY = 950;
-const Y_PUSH = 1210;
-
-// Adapter rows: batch serves the two REST sources, so it sits between them.
-const Y_BATCH = 480;
-const Y_KAFKA = 950;
-const Y_API = 1210;
-
-const Y_PIPE = 790;
-const Y_TOPIC = 480;
-const Y_DLQ = 1180;
-
-const Y_LANDWORKER = 480;
-const Y_STORES = 830;
-const Y_DBX = 1190;
+const BAND = { y: 160, h: 1260 };
 
 const parts = [];
 
-// Group containers
-parts.push(groupBox(60, BOX_TOP, 420, BOX_H, "Source systems (simulated)"));
-parts.push(groupBox(540, BOX_TOP, 1040, BOX_H, "Ingestion gateway"));
-parts.push(groupBox(1690, BOX_TOP, 360, BOX_H, "Azure Service Bus"));
-parts.push(groupBox(2130, BOX_TOP, 420, BOX_H, "Landing"));
+parts.push(groupBox(60, BAND.y, 480, BAND.h, "Source systems (simulated)"));
+parts.push(groupBox(600, BAND.y, 1400, BAND.h, "Ingestion gateway"));
+parts.push(groupBox(2120, BAND.y, 460, BAND.h, "Azure Service Bus"));
+parts.push(groupBox(2660, BAND.y, 660, BAND.h, "Landing"));
 
-// ---- edges (drawn under the nodes) ----
-const srcR = COL_SRC + SRC_W / 2;
-const adaptL = COL_ADAPT - ADAPT_W / 2;
-const adaptR = COL_ADAPT + ADAPT_W / 2;
-const pipeL = COL_PIPE - PIPE_W / 2;
-const pipeR = COL_PIPE + PIPE_W / 2;
-const busL = COL_BUS - BUS_W / 2;
+// ---- edges first, so the nodes paint over the line ends ----
 
-// sources -> adapters
-parts.push(
-  edge([
-    [srcR, Y_DESK],
-    [adaptL - 60, Y_DESK],
-    [adaptL - 60, Y_BATCH - 26],
-    [adaptL, Y_BATCH - 26],
-  ]),
-);
-parts.push(
-  edge([
-    [srcR, Y_ERP],
-    [adaptL - 60, Y_ERP],
-    [adaptL - 60, Y_BATCH + 26],
-    [adaptL, Y_BATCH + 26],
-  ]),
-);
-parts.push(
-  edge([
-    [srcR, Y_TELEMETRY],
-    [adaptL, Y_TELEMETRY],
-  ]),
-);
-parts.push(
-  edge([
-    [srcR, Y_PUSH],
-    [adaptL, Y_PUSH],
-  ]),
-);
+// Two REST sources into the one batch puller. Aimed at different heights on the
+// same edge so they arrive in the order they left.
+parts.push(edge([right(DESK), Y_DESK], [left(BATCH), Y_BATCH - 26]));
+parts.push(edge([right(ERP), Y_ERP], [left(BATCH), Y_BATCH + 26]));
+parts.push(edge([right(TELEM), Y_TELEMETRY], [left(KAFKA), Y_KAFKA]));
+parts.push(edge([right(ANY), Y_PUSH], [left(REST), Y_API]));
 
-// adapters -> the one pipeline
-// Labels sit on the horizontal run before the bend, never over it.
-parts.push(
-  edge(
-    [
-      [adaptR, Y_BATCH],
-      [pipeL - 70, Y_BATCH],
-      [pipeL - 70, Y_PIPE - 48],
-      [pipeL, Y_PIPE - 48],
-    ],
-    { accent: true, label: "batch", lx: adaptR + 62, ly: Y_BATCH - 24 },
-  ),
-);
-parts.push(
-  edge(
-    [
-      [adaptR, Y_KAFKA],
-      [pipeL - 70, Y_KAFKA],
-      [pipeL - 70, Y_PIPE + 12],
-      [pipeL, Y_PIPE + 12],
-    ],
-    { accent: true, label: "stream", lx: adaptR + 62, ly: Y_KAFKA - 24 },
-  ),
-);
-parts.push(
-  edge(
-    [
-      [adaptR, Y_API],
-      [pipeL - 70, Y_API],
-      [pipeL - 70, Y_PIPE + 62],
-      [pipeL, Y_PIPE + 62],
-    ],
-    { accent: true, label: "push", lx: adaptR + 62, ly: Y_API - 24 },
-  ),
-);
+// Three adapters, one pipeline. Every one of these is a diagonal, so the
+// labels ride the midpoint rather than sitting beside a start point.
+const BATCH_RUN = [
+  [right(BATCH), Y_BATCH],
+  [left(PIPE), Y_PIPE - 80],
+];
+const KAFKA_RUN = [
+  [right(KAFKA), Y_KAFKA],
+  [left(PIPE), Y_PIPE],
+];
+const REST_RUN = [
+  [right(REST), Y_API],
+  [left(PIPE), Y_PIPE + 80],
+];
+parts.push(edge(...BATCH_RUN, { accent: true }));
+parts.push(midLabel(...BATCH_RUN, "batch", { away: -34 }));
+parts.push(edge(...KAFKA_RUN, { accent: true }));
+parts.push(midLabel(...KAFKA_RUN, "stream"));
+parts.push(edge(...REST_RUN, { accent: true }));
+parts.push(midLabel(...REST_RUN, "push"));
 
-// pipeline -> bus
-parts.push(
-  edge(
-    [
-      [pipeR, Y_PIPE - 40],
-      [busL - 45, Y_PIPE - 40],
-      [busL - 45, Y_TOPIC],
-      [busL, Y_TOPIC],
-    ],
-    { accent: true, label: "accepted", lx: pipeR + 55, ly: Y_PIPE - 64 },
-  ),
-);
-parts.push(
-  edge(
-    [
-      [pipeR, Y_PIPE + 50],
-      [busL - 45, Y_PIPE + 50],
-      [busL - 45, Y_DLQ],
-      [busL, Y_DLQ],
-    ],
-    { label: "rejected", lx: pipeR + 55, ly: Y_PIPE + 26 },
-  ),
-);
+// Accepted to the topic, rejected to the dead-letter queue.
+const OK_RUN = [
+  [right(PIPE), Y_PIPE - 60],
+  [left(TOPIC), Y_TOPIC],
+];
+const BAD_RUN = [
+  [right(PIPE), Y_PIPE + 60],
+  [left(DLQ), Y_DLQ],
+];
+parts.push(edge(...OK_RUN, { accent: true }));
+parts.push(midLabel(...OK_RUN, "accepted"));
+parts.push(edge(...BAD_RUN));
+parts.push(midLabel(...BAD_RUN, "rejected", { away: -34 }));
 
-// topic -> landing worker
-parts.push(
-  edge(
-    [
-      [COL_BUS + BUS_W / 2, Y_TOPIC],
-      [COL_LAND - 160, Y_TOPIC],
-    ],
-    { accent: true },
-  ),
-);
+parts.push(edge([right(TOPIC), Y_TOPIC], [left(WORKER), WORKER.y], { accent: true }));
 
-// landing worker -> the two stores
-const PG_X = COL_LAND - 105;
-const PARQUET_X = COL_LAND + 105;
-parts.push(
-  edge([
-    [PG_X, Y_LANDWORKER + 55],
-    [PG_X, Y_STORES - DB_H / 2],
-  ]),
-);
-parts.push(
-  edge([
-    [PARQUET_X, Y_LANDWORKER + 55],
-    [PARQUET_X, Y_STORES - DB_H / 2],
-  ]),
-);
-
-// parquet -> databricks
-parts.push(
-  edge([
-    [PARQUET_X, Y_STORES + DB_H / 2],
-    [PARQUET_X, Y_DBX - 130],
-    [COL_LAND, Y_DBX - 130],
-    [COL_LAND, Y_DBX - 55],
-  ]),
-);
+parts.push(edge([PG.x, bottom(WORKER)], [PG.x, top(PG)]));
+parts.push(edge([PARQUET.x, bottom(WORKER)], [PARQUET.x, top(PARQUET)]));
+parts.push(edge([DBX.x, bottom(PARQUET)], [DBX.x, top(DBX)]));
 
 // ---- nodes ----
-parts.push(rrect(COL_SRC, Y_DESK, SRC_W, SRC_H, "Trading desk\nREST, camelCase", { size: 24 }));
-parts.push(rrect(COL_SRC, Y_ERP, SRC_W, SRC_H, "ERP\nREST, snake_case", { size: 24 }));
-parts.push(rrect(COL_SRC, Y_TELEMETRY, SRC_W, SRC_H, "Port telemetry\nKafka topic", { size: 24 }));
-parts.push(rrect(COL_SRC, Y_PUSH, SRC_W, SRC_H, "Any system\nPOST /ingest", { size: 24 }));
+parts.push(rrect(DESK.x, DESK.y, DESK.w, DESK.h, "Trading desk\nREST, camelCase", { size: 23 }));
+parts.push(rrect(ERP.x, ERP.y, ERP.w, ERP.h, "ERP\nREST, snake_case", { size: 23 }));
+parts.push(rrect(TELEM.x, TELEM.y, TELEM.w, TELEM.h, "Port telemetry\nKafka topic", { size: 23 }));
+parts.push(rrect(ANY.x, ANY.y, ANY.w, ANY.h, "Any system\nPOST /ingest", { size: 23 }));
 
-parts.push(rrect(COL_ADAPT, Y_BATCH, ADAPT_W, ADAPT_H, "Batch puller\nscheduled", { size: 24 }));
-parts.push(rrect(COL_ADAPT, Y_KAFKA, ADAPT_W, ADAPT_H, "Kafka consumer", { size: 24 }));
-parts.push(rrect(COL_ADAPT, Y_API, ADAPT_W, ADAPT_H, "REST gateway", { size: 24 }));
+parts.push(rrect(BATCH.x, BATCH.y, BATCH.w, BATCH.h, "Batch puller\nscheduled", { size: 23 }));
+parts.push(rrect(KAFKA.x, KAFKA.y, KAFKA.w, KAFKA.h, "Kafka consumer", { size: 23 }));
+parts.push(rrect(REST.x, REST.y, REST.w, REST.h, "REST gateway", { size: 23 }));
 
 parts.push(
   rrect(
-    COL_PIPE,
-    Y_PIPE,
-    PIPE_W,
-    PIPE_H,
+    PIPE.x,
+    PIPE.y,
+    PIPE.w,
+    PIPE.h,
     "Ingestion pipeline\n\nnormalize · validate\ndedupe · publish",
-    {
-      fill: ACCENT,
-      stroke: ACCENT,
-      tcolor: WHITE,
-      size: 25,
-    },
+    { fill: ACCENT, stroke: ACCENT, tcolor: ON_ACCENT, size: 24 },
   ),
 );
 
-parts.push(queue(COL_BUS, Y_TOPIC, BUS_W, BUS_H, "Topic", { stroke: ACCENT, size: 26 }));
-parts.push(queue(COL_BUS, Y_DLQ, BUS_W, BUS_H, "Dead letter", { size: 24 }));
+parts.push(queue(TOPIC.x, TOPIC.y, TOPIC.w, TOPIC.h, "Topic", { stroke: ACCENT, size: 25 }));
+parts.push(queue(DLQ.x, DLQ.y, DLQ.w, DLQ.h, "Dead letter", { size: 23 }));
 
-parts.push(rrect(COL_LAND, Y_LANDWORKER, 320, 110, "Landing worker", { size: 24 }));
-parts.push(cylinder(PG_X, Y_STORES, DB_W, DB_H, "Postgres", { size: 24 }));
-parts.push(cylinder(PARQUET_X, Y_STORES, DB_W, DB_H, "Parquet", { size: 24 }));
-parts.push(rrect(COL_LAND, Y_DBX, 320, 110, "Databricks\nDelta tables", { size: 24 }));
+parts.push(rrect(WORKER.x, WORKER.y, WORKER.w, WORKER.h, "Landing worker", { size: 23 }));
+parts.push(cylinder(PG.x, PG.y, PG.w, PG.h, "Postgres", { size: 22 }));
+parts.push(cylinder(PARQUET.x, PARQUET.y, PARQUET.w, PARQUET.h, "Parquet", { size: 22 }));
+parts.push(rrect(DBX.x, DBX.y, DBX.w, DBX.h, "Databricks\nDelta tables", { size: 23 }));
 
-// The canvas hugs the drawing: content runs from BOX_TOP to BOX_TOP + BOX_H,
-// so it is shifted up to leave an even margin instead of a band of dead space
-// top and bottom once the cover scales it to fit.
-const MARGIN = 70;
-const SHIFT = BOX_TOP - MARGIN;
-const W = 2610;
-const H = BOX_H + MARGIN * 2;
-const diagramSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<defs>
-  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${LINE}"/></marker>
-  <marker id="arrowAccent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${ACCENT}"/></marker>
-</defs>
-<g transform="translate(0, ${-SHIFT})">
-${parts.join("\n")}
-</g>
-</svg>`;
+const W = 3380;
+const H = 1580;
+
+const diagramSvg = document({
+  width: W,
+  height: H,
+  id: "bunkerflow-arch",
+  title: "BunkerFlow architecture",
+  desc: "Four simulated sources feed three thin adapters: a trading desk and an ERP, both REST, share a scheduled batch puller; port telemetry arrives over Kafka; and any system can push to a REST gateway. All three adapters converge on one ingestion pipeline that normalizes, validates, dedupes and publishes. Accepted records go to an Azure Service Bus topic and rejected ones to a dead-letter queue. A landing worker reads the topic and writes Postgres for the query API and date-partitioned Parquet for the lakehouse, which Databricks reads into Delta tables.",
+  parts,
+});
 
 await fs.mkdir(outDir, { recursive: true });
 await fs.writeFile(path.join(outDir, "architecture.svg"), diagramSvg, "utf8");
 
-// ---- compose the 16:9 cover (diagram only; the page supplies title + tech) ----
+/* ---- cover -----------------------------------------------------------------
+ * The diagram's colours are theme variables, which resolve against the page it
+ * is inlined into. A cover PNG has no page, so the light values are pinned on
+ * the wrapper rather than left to the fallbacks — the same result today, but it
+ * means the cover cannot drift if a fallback is ever edited.
+ * -------------------------------------------------------------------------- */
 const COVER_W = 1600;
 const COVER_H = 900;
+const vars = Object.entries(LIGHT_VARS)
+  .map(([name, value]) => `${name}: ${value};`)
+  .join(" ");
+
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+  :root { ${vars} }
   html, body { margin: 0; padding: 0; background: #ffffff; }
   .cover {
     width: ${COVER_W}px; height: ${COVER_H}px; box-sizing: border-box; padding: 48px 56px;
@@ -350,16 +214,12 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 
 const browser = await chromium.launch();
 try {
-  // 3x rather than 2x: this diagram is wider than the others, so it scales
-  // down further to fit and its type needs the extra device pixels to stay
-  // crisp on a high-DPI screen.
   const page = await browser.newPage({
     viewport: { width: COVER_W, height: COVER_H },
-    deviceScaleFactor: 3,
+    deviceScaleFactor: 2,
   });
   await page.setContent(html, { waitUntil: "networkidle" });
-  const cover = await page.$(".cover");
-  await cover.screenshot({ path: path.join(outDir, "cover.png") });
+  await (await page.$(".cover")).screenshot({ path: path.join(outDir, "cover.png") });
 } finally {
   await browser.close();
 }

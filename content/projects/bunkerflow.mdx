@@ -27,6 +27,11 @@ Source systems disagree about names, so each target field resolves through a lis
 
 ## Architecture
 
+<Architecture
+  src="/projects/bunkerflow/architecture.svg"
+  caption="Four sources, three thin adapters, one pipeline. Accepted records go to the topic and rejected ones to the dead-letter queue; the landing worker writes Postgres for the query API and Parquet for the lakehouse."
+/>
+
 - **Gateway and worker (.NET 10):** a minimal API for push ingestion and querying, and a worker running the batch pullers, the Kafka consumer and the Service Bus landing consumer. Both expose health and Prometheus metrics broken out by outcome and ingestion channel, so a stalled batch puller is visible while the streaming path keeps working.
 - **Idempotency:** the business key is reserved before publishing and released again if the publish fails. Marking a key as seen up front is the obvious implementation and it silently loses records, because the retry then looks like a duplicate. A test is named after that exact scenario.
 - **Messaging:** the event id is derived from source system plus source record id, so a replayed record produces the same Service Bus `MessageId` and the broker rejects it before any consumer is involved. The subscription carries a SQL filter on schema version, so a future contract version gets its own consumer instead of corrupting this one.

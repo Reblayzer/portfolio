@@ -182,6 +182,24 @@ export function edgeLabel(x, y, text, { anchor = "start" } = {}) {
 }
 
 /**
+ * A label for a diagonal edge.
+ *
+ * Placing a label beside a line's start only works while the line is
+ * horizontal or vertical — a diagonal walks out from under it and ends up
+ * written across the stroke. This puts the label at the midpoint and pushes it
+ * perpendicular to the line, so the gap is the same whatever the angle.
+ * Negative `away` puts it on the other side.
+ */
+export function midLabel([x1, y1], [x2, y2], text, { away = 34 } = {}) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  return edgeLabel(x1 + dx / 2 + (-dy / len) * away, y1 + dy / 2 + (dx / len) * away, text, {
+    anchor: "middle",
+  });
+}
+
+/**
  * Wraps the parts in an SVG document.
  *
  * `data-inline` is what tells the Architecture component to put this file in
